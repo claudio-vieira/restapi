@@ -1,0 +1,67 @@
+var promise = require('bluebird');
+
+var options = {
+  // Initialization Options
+  promiseLib: promise
+};
+
+var pgp = require('pg-promise')(options);
+var connectionString = "postgres://postgres:postgres@localhost:5432/liane";
+var db = pgp(connectionString);
+
+// add query functions
+function getAllVendedores(req, res, next) {
+  db.any('select * from vendedores')
+    .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved ALL vendedores'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
+function getSingleVendedores(req, res, next) {
+  var codigo = parseInt(req.params.codigo);
+  db.one('select * from vendedores where codigo = $1', codigo)
+    .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved ONE vendedor'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
+function createVendedor(req, res, next) {
+  /*console.log("next", next);*/
+  /*console.log("res", res);*/
+  /*req.body.codigo = parseInt(req.body.codigo);*/
+  db.none('insert into vendedores(codigo,nome,endereco,municipio,bairro,uf,telefone,celular,email,idtabelapreco,nuultimopedido,precoliberado,descminmax,descavista,nudiasdescavista) ' +
+      'values(${codigo}, ${nome}, ${endereco}, ${municipio}, ${bairro}, ${uf}, ${telefone}, ${celular}, ${email}, ${idtabelapreco}, ${nuultimopedido}, ${precoliberado}, ${descminmax}, ${descavista}, ${nudiasdescavista})',
+    req.body)
+    .then(function () {
+      res.status(200)
+        .json({
+          status: 'success',
+          message: 'Inserted one vendedor'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
+module.exports = {
+  getAllVendedores: getAllVendedores,
+  getSingleVendedores: getSingleVendedores,
+  createVendedor: createVendedor
+};
