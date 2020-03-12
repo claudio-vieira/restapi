@@ -46,8 +46,8 @@ cron.schedule("*/20 * * * * *", function() {
     });
 
     db.task('insert-clientes', async t => {
-        const clientes = await t.any('SELECT c FROM clientes c WHERE c.enviadoftp is false');        
-        processarClientesInit(clientes);
+        const clientes = await t.any('SELECT * FROM clientes c WHERE c.enviadoftp is false');        
+        if(clientes != undefined) processarClientesInit(clientes);
     })
     .then(data => {
         // success
@@ -200,37 +200,37 @@ function processarClientesInit(clientes){
         
         var cliente = clientes[j];
 
-        strCliente += cliente.CDVENDEDOR+"|"+
-        (cliente.CODIGO != null ? cliente.CODIGO : "")+"|"+ //Este é o código que irá vir pelo sitema da Liane, na criação do cliente este código é nulo
-        (cliente.NOME != null ? cliente.NOME : "")+"|"+
-        (cliente.FANTASIA != null ? cliente.FANTASIA : "")+"|"+
-        (cliente.ENDERECO != null ? cliente.ENDERECO : "")+"|"+
-        (cliente.NUMEROENDERECO != null ? cliente.NUMEROENDERECO : "")+"|"+
-        (cliente.COMPLEMENTOENDERECO != null ? cliente.COMPLEMENTOENDERECO : "")+"|"+
-        (cliente.BAIRRO != null ? cliente.BAIRRO : "")+"|"+
-        (cliente.CIDADE != null ? cliente.CIDADE : "")+"|"+
-        (cliente.UF != null ? cliente.UF : "")+"|"+
-        (cliente.CEP != null ? cliente.CEP : "")+"|"+
-        (cliente.CNPJ != null ? cliente.CNPJ : "")+"|"+
-        (cliente.INSCRESTADUAL != null ? cliente.INSCRESTADUAL : "")+"|"+
-        (cliente.FONE != null ? cliente.FONE : "")+"|"+
-        (cliente.CELULAR != null ? cliente.CELULAR : "")+"|"+
-        (cliente.FAX != null ? cliente.FAX : "")+"|"+
-        (cliente.CONTATO != null ? cliente.CONTATO : "")+"|"+
-        (cliente.EMAIL != null ? cliente.EMAIL : "")+"|"+
-        (cliente.TIPOPESSOA != null ? cliente.TIPOPESSOA : "")+"|"+
-        (cliente.REGAPURACAO != null ? cliente.REGAPURACAO : "")+"|"+
-        (cliente.LIMCRED != null ? cliente.LIMCRED : "")+"|"+
-        (cliente.SITUACAO != null ? cliente.SITUACAO : "")+"|"+
-        (cliente.POSSUIIE != null ? cliente.POSSUIIE : "")+"|"+
-        (cliente.LIMINARST != null ? cliente.LIMINARST : "")+"|"+
-        (cliente.IDFILIAL != null ? zeros(cliente.IDFILIAL,2) : "")+"|"+
-        (cliente.IDTIPOTABELA != null ? zeros(cliente.IDTIPOTABELA,4) : "") + "|" +
-        (cliente.SUFRAMA != null ? cliente.SUFRAMA : "")+"|"+
-        (cliente.EMAIL2 != null ? cliente.EMAIL2 : "")+"|"+
-        (cliente.EMAIL3 != null ? cliente.EMAIL3 : "")+"|"+
-        (cliente.CODIGO != null && cliente.CODIGO > 0 ? cliente.CODIGO : 
-            (cliente.CODIGOINTERNO != null && cliente.CODIGOINTERNO > 0 ? cliente.CODIGOINTERNO : "")
+        strCliente += cliente.cdvendedor+"|"+
+        (cliente.codigo != null ? cliente.codigo : "")+"|"+ //este é o código que irá vir pelo sitema da liane, na criação do cliente este código é nulo
+        (cliente.nome != null ? cliente.nome : "")+"|"+
+        (cliente.fantasia != null ? cliente.fantasia : "")+"|"+
+        (cliente.endereco != null ? cliente.endereco : "")+"|"+
+        (cliente.numeroendereco != null ? cliente.numeroendereco : "")+"|"+
+        (cliente.complementoendereco != null ? cliente.complementoendereco : "")+"|"+
+        (cliente.bairro != null ? cliente.bairro : "")+"|"+
+        (cliente.cidade != null ? cliente.cidade : "")+"|"+
+        (cliente.uf != null ? cliente.uf : "")+"|"+
+        (cliente.cep != null ? cliente.cep : "")+"|"+
+        (cliente.cnpj != null ? cliente.cnpj : "")+"|"+
+        (cliente.inscrestadual != null ? cliente.inscrestadual : "")+"|"+
+        (cliente.fone != null ? cliente.fone : "")+"|"+
+        (cliente.celular != null ? cliente.celular : "")+"|"+
+        (cliente.fax != null ? cliente.fax : "")+"|"+
+        (cliente.contato != null ? cliente.contato : "")+"|"+
+        (cliente.email != null ? cliente.email : "")+"|"+
+        (cliente.tipopessoa != null ? cliente.tipopessoa : "")+"|"+
+        (cliente.regapuracao != null ? cliente.regapuracao : "")+"|"+
+        (cliente.limcred != null ? cliente.limcred : "")+"|"+
+        (cliente.situacao != null ? cliente.situacao : "")+"|"+
+        (cliente.possuiie != null ? cliente.possuiie : "")+"|"+
+        (cliente.liminarst != null ? cliente.liminarst : "")+"|"+
+        (cliente.idfilial != null ? zeros(cliente.idfilial,2) : "")+"|"+
+        (cliente.idtipotabela != null ? zeros(cliente.idtipotabela,4) : "") + "|" +
+        (cliente.suframa != null ? cliente.suframa : "")+"|"+
+        (cliente.email2 != null ? cliente.email2 : "")+"|"+
+        (cliente.email3 != null ? cliente.email3 : "")+"|"+
+        (cliente.codigo != null && cliente.codigo > 0 ? cliente.codigo : 
+            (cliente.codigointerno != null && cliente.codigointerno > 0 ? cliente.codigointerno : "")
         )+"|"+
         "\n";
     }
@@ -282,14 +282,16 @@ function enviaClientes(strCliente, clientes){
 	var d = new Date();
 	var nome = "Clientes_" + dateFormat(d, "yyyyMMddHHmmss") + ".txt";
     //console.log("a processar, enviando");
-    ftp.put(buffer, "upload/"+nome, err => {
-	  if (!err) {
-	    console.log("File transferred successfully!");
-	    setaClientesEnviados(clientes)
-	  }else{
-	  	console.log("Error: "+err);
-	  }
-	});
+    if(clientes.length > 0){
+        ftp.put(buffer, "upload/"+nome, err => {
+        if (!err) {
+            console.log("File transferred successfully!");
+            setaClientesEnviados(clientes)
+        }else{
+            console.log("Error: "+err);
+        }
+        });
+    }
 
 }
 
@@ -335,27 +337,29 @@ function setaClientesEnviados(clientes){
 	for(var i=0; i < clientes.length; i++) {
 		var cliente = clientes[i];
         
-        if(cliente.CODIGO != null && cliente.CODIGO > 0){
-            query_update += "update clientes set enviadoftp = true where codigo = "+cliente.CODIGO;
+        if(cliente.codigo != null && cliente.codigointerno > 0){
+            query_update += "update clientes set enviadoftp = true where codigo = "+cliente.codigointerno+";";
         }else{
-            query_update += "update clientes set enviadoftp = true where CODIGOINTERNO = "+cliente.CODIGOINTERNO;
+            query_update += "update clientes set enviadoftp = true where codigointerno = "+cliente.codigointerno+";";
         }
 	}
-
-    //console.log("a processar, setando", query_update);
-    db.task('my-task', async t => {
-        //console.log("result, teste");
-        const result = await db.any(query_update);
-        
-    })
-    .then(data => {
-        // success
-        // data = as returned from the task's callback
-        console.log("Clientes atualizados como já enviados para o FTP");
-    })
-    .catch(error => {
-        console.log("problema na atualizacao dos clientes para enviadoftp true: \n", error);
-    });
+    
+    if(clientes.length > 0){
+        //console.log("a processar, setando", query_update);
+        db.task('my-task', async t => {
+            //console.log("result, teste");
+            const result = await db.any(query_update);
+            
+        })
+        .then(data => {
+            // success
+            // data = as returned from the task's callback
+            console.log("Clientes atualizados como já enviados para o FTP");
+        })
+        .catch(error => {
+            console.log("problema na atualizacao dos clientes para enviadoftp true: \n", error);
+        });
+    }
 }
 
 function rejeitarPedidoPendente(req, res, next){
