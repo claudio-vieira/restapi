@@ -112,7 +112,7 @@ function processarPedidosInit(pedidos, itenspedidos){
             
             strPedidoItem += pedido.cdvendedor + "|" +
                             pedido.cdvendedor + "|" +
-                            pedido.cdpedido + "|" +
+                            zeros(pedido.cdpedido,6) + "|" +
                             itenspedidos[j].cdproduto + "|" +
                             zeros(pedido.cdlocalfaturamento,2) + "|" +
                             (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
@@ -142,7 +142,7 @@ function processarPedidosInit(pedidos, itenspedidos){
 
         strPedido += pedido.cdvendedor + "|" +
                     pedido.cdvendedor + "|" +
-                    pedido.cdpedido + "|" +
+                    zeros(pedido.cdpedido,6) + "|" +
                     (pedido.cdclienteerp != undefined ? pedido.cdclienteerp : "") + "|" +
                     (pedido.cdcliente != undefined ? pedido.cdcliente : "") + "|" +
                     pedido.cnpjcliente + "|" +

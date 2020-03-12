@@ -414,7 +414,7 @@ function inserirPedidos(req, res, next) {
                                     +"cdvenda,cdformapagamento,parcela1,parcela2,parcela3,parcela4,parcela5,parcela6,parcela7,parcela8,parcela9,situacao,"
                                     +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
                                     +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
-				    +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos) VALUES ";
+				    +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, motivousogordurasupervisor) VALUES ";
                 
                 for (i in req.body) {
                     pedido = req.body[i];
@@ -484,6 +484,7 @@ function inserirPedidos(req, res, next) {
 				    +","+ (pedido.valorreferenciatotal == undefined || pedido.valorreferenciatotal.toString().localeCompare('') == 0 ? null : pedido.valorreferenciatotal)
 				    +","+ (pedido.totalvolume == undefined || pedido.totalvolume.toString().localeCompare('') == 0 ? null : pedido.totalvolume)
 				    +","+ (pedido.totalprodutos == undefined || pedido.totalprodutos.toString().localeCompare('') == 0 ? null : pedido.totalprodutos)
+				    +","+ (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? null : "'"+pedido.motivousogordurasupervisor+"'")
                                     +"), "; 
 
                     /*for(var j=0; j < resTipoVenda.length; j++){
