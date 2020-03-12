@@ -123,7 +123,7 @@ function inserirClientes(req, res, next) {
             var query_insert = "INSERT INTO clientes("
                                         +"cdvendedor,idfilial,codigo,codigointerno,nome,fantasia,endereco,numeroendereco,complementoendereco,"
                                         +"bairro,cidade,uf,cep,cnpj,inscrestadual,fone,celular,fax,contato,contato2,email,tipopessoa,regapuracao,"
-                                        +"limcred,situacao,possuiie,liminarst,idtipotabela,suframa,email2,email3,dtultimavisita,regimest) VALUES  ";
+                                        +"limcred,situacao,possuiie,liminarst,idtipotabela,suframa,email2,email3,dtultimavisita,regimest,enviadoftp) VALUES  ";
 
             //Percorre os clientes para salvar
             for (i in req.body) {
@@ -194,6 +194,7 @@ function inserirClientes(req, res, next) {
                                 +","+(cliente.email3 == undefined || cliente.email3.toString().localeCompare('') == 0 ? null : "'"+cliente.email3+"'")
                                 +","+(cliente.dtultimavisita == undefined || cliente.dtultimavisita.toString().localeCompare('') == 0 ? null : "'"+cliente.dtultimavisita+"'") 
                                 +","+(cliente.regimest == undefined || cliente.regimest.toString().localeCompare('') == 0 ? null : cliente.regimest)
+                                +",false" //Sempre false pois há um serviço que envia os clientes não enviados para o FTP a partir desta flag
                                 +"), ";
                 if(error > 0){
                     break;
