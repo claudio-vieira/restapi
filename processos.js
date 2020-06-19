@@ -3,8 +3,30 @@ var utils = require('./utils');
 var dateFormat = require('dateformat');
 const cron = require("node-cron");
 const jsftp = require("jsftp");
+var fs = require("fs");
 
-var ftp = new jsftp({
+var ftp_pedido = new jsftp({
+  host: "54.94.243.33",
+  port: 21, // defaults to 21
+  user: "liane", // defaults to "anonymous"
+  pass: "Integra@01" // defaults to "@anonymous"
+});
+
+var ftp_pedido_tmp = new jsftp({
+  host: "54.94.243.33",
+  port: 21, // defaults to 21
+  user: "liane", // defaults to "anonymous"
+  pass: "Integra@01" // defaults to "@anonymous"
+});
+
+var ftp_cliente = new jsftp({
+  host: "54.94.243.33",
+  port: 21, // defaults to 21
+  user: "liane", // defaults to "anonymous"
+  pass: "Integra@01" // defaults to "@anonymous"
+});
+
+var ftp_cliente_tmp = new jsftp({
   host: "54.94.243.33",
   port: 21, // defaults to 21
   user: "liane", // defaults to "anonymous"
@@ -13,37 +35,6 @@ var ftp = new jsftp({
 
 cron.schedule("*/20 * * * * *", function() { 
     console.log("running a task every minute");
-
-    db.task('insert-pedidos', async t => {
-        
-        const pedidos = await t.any('SELECT p.*,c1.idtipotabela as c1_idtipotabela, c2.idtipotabela as c2_idtipotabela FROM pedidos p LEFT JOIN clientes c1 on c1.codigo = p.cdcliente LEFT JOIN clientes c2 on c2.codigointerno = p.cdclienteapk WHERE p.enviadoftp is false and p.pendente = 1');
-        var ids = "";
-        var cdvendedores = "";
-        for(var i=0; i < pedidos.length; i++) {
-            var pedido = pedidos[i];
-            ids += pedido.cdpedido+",";
-            cdvendedores += pedido.cdvendedor+",";
-        }
-
-        ids = ids.substring(0, ids.length-1);
-        cdvendedores = cdvendedores.substring(0, cdvendedores.length-1);
-
-        const itenspedidos = await t.any('select ip.*, p.descricao FROM itens_pedido ip ' +
-                'inner join produtos p ' +
-                ' on p.codigo = ip.cdproduto '+
-                ' where ip.cdpedido in ('+ids+")"+
-                ' and IP.cdvendedor in ('+cdvendedores+")");
-        
-        processarPedidosInit(pedidos, itenspedidos);
-    })
-    .then(data => {
-        // success
-        // data = as returned from the task's callback
-    })
-    .catch(error => {
-        // error
-        //Pedido já inserido gera cod 23505
-    });
 
     db.task('insert-clientes', async t => {
         const clientes = await t.any('SELECT * FROM clientes c WHERE c.enviadoftp is false');        
@@ -57,6 +48,111 @@ cron.schedule("*/20 * * * * *", function() {
         // error
         //Cliente já inserido gera cod 23505
     });
+
+    
+    db.task('insert-pedidos', async t => {
+        
+        const pedidos = await t.any('SELECT p.*,c1.idtipotabela as c1_idtipotabela, c2.idtipotabela as c2_idtipotabela FROM pedidos p LEFT JOIN clientes c1 on c1.codigo = p.cdcliente LEFT JOIN clientes c2 on c2.cnpj = p.cnpjcliente WHERE c2.cdvendedor = p.cdvendedor and p.enviadoftp is false and p.pendente = 1');
+       
+   	 var strPedido = "<PEDIDOS>\n";
+    	var strPedidoItem = "<ITEM DO PEDIDO>\n";
+
+    	for(var i=0; i < pedidos.length; i++) {
+        	var pedido = pedidos[i];
+
+        	var gorduraGerada = 0;
+        	var gorduraUsada = 0;
+        	var totalST = 0;
+
+            	const itenspedidos = await t.any('select ip.*, p.descricao FROM itens_pedido ip ' +
+            	'inner join produtos p ' +
+            	' on p.codigo = ip.cdproduto '+
+            	' where ip.cdpedido = '+pedido.cdpedido+
+            	' and ip.cdvendedor = '+pedido.cdvendedor);
+
+
+            for(var j=0; j < itenspedidos.length; j++) {
+            
+                strPedidoItem += pedido.cdvendedor + "|" +
+                                pedido.cdvendedor + "|" +
+                                zeros(pedido.cdpedido,6) + "|" +
+                                itenspedidos[j].cdproduto + "|" +
+                                zeros(pedido.cdlocalfaturamento,2) + "|" +
+                                (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
+                                itenspedidos[j].tipodesc + "|" +
+                                zeros(Math.round(itenspedidos[j].qtdeproduto),6) + "|" +
+                                (itenspedidos[j].precotabela != null ? itenspedidos[j].precotabela.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].percdescontomax != null ? itenspedidos[j].percdescontomax.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].percdescontomin != null ? itenspedidos[j].percdescontomin.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].percdesconto != null ? itenspedidos[j].percdesconto.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].valordesconto != null ? itenspedidos[j].valordesconto.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].precovenda != null ? itenspedidos[j].precovenda.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].sobragordura != null ? itenspedidos[j].sobragordura.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].usogordura != null ? itenspedidos[j].usogordura.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].st != null ? itenspedidos[j].st.toFixed(2) : 0) + "|" +
+                                (itenspedidos[j].cdpedidobonificacao > 0 ? itenspedidos[j].cdpedidobonificacao : 0) + "|" +
+                    (itenspedidos[j].valornegativogordura > 0 ? itenspedidos[j].valornegativogordura.toFixed(2) : "0.00") + "|" +
+                    (itenspedidos[j].valorreferencia > 0 ? itenspedidos[j].valorreferencia.toFixed(2) : 0) + "|" +
+                    (itenspedidos[j].valorminimodisponivel > 0 ? itenspedidos[j].valorminimodisponivel.toFixed(2) : 0) + "|" +
+                                "\n";
+    
+                gorduraUsada += itenspedidos[j].usogordura != null || itenspedidos[j].usogordura != undefined ? itenspedidos[j].usogordura : 0;
+                gorduraGerada += itenspedidos[j].sobragordura != null || itenspedidos[j].sobragordura != undefined ? itenspedidos[j].sobragordura : 0;
+                totalST += itenspedidos[j].ST != null || itenspedidos[j].ST != undefined ? itenspedidos[j].ST : 0;
+            }
+    
+            pedido.dtpedido = dateFormat(pedido.dtpedido, "dd/mm/yyyy");
+    
+            strPedido += pedido.cdvendedor + "|" +
+                        pedido.cdvendedor + "|" +
+                        zeros(pedido.cdpedido,6) + "|" +
+                        (pedido.cdclienteerp != undefined ? pedido.cdclienteerp : "") + "|" +
+                        (pedido.cdcliente != undefined ? pedido.cdcliente : "") + "|" +
+                        pedido.cnpjcliente + "|" +
+                        zeros(pedido.cdlocalfaturamento,2) + "|" +
+                        (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
+                        pedido.dtpedido + "|" +
+                        (pedido.ordem != undefined ? pedido.ordem : "") + "|" +
+                        (pedido.observacao != undefined ? pedido.observacao : "") + "|" +
+                        pedido.cdvenda + "|" +
+                        pedido.cdformapagamento + "|" +
+                        (pedido.cdcobranca == 0 ? "E" : "R")+ "|" + // "ENTREGAR", "RETIRAR"
+                        (pedido.bensuframa > 0 ? "S" : "N") + "|" +
+                        (pedido.parcela1 != null ? zeros(pedido.parcela1,3) :"000")+ "|" +
+                        (pedido.parcela2 != null ? zeros(pedido.parcela2,3) :"000")+ "|" +
+                        (pedido.parcela3 != null ? zeros(pedido.parcela3,3) :"000")+ "|" +
+                        (pedido.parcela4 != null ? zeros(pedido.parcela4,3) :"000")+ "|" +
+                        (pedido.parcela5 != null ? zeros(pedido.parcela5,3) :"000")+ "|" +
+                        "000|" +
+                        "000|" +
+                        "000|" +
+                        "000|" +
+                        pedido.situacao + "|" +
+                        (pedido.totalvenda != null ? pedido.totalvenda.toFixed(2) : "") + "|" +
+                        (pedido.totaltabela != null ? pedido.totaltabela.toFixed(2) : "") + "|" +
+                        (pedido.totaldesconto != null ? pedido.totaldesconto.toFixed(2) : "") + "|" +
+                        gorduraGerada.toFixed(2) + "|" +
+                        gorduraUsada.toFixed(2) + "|" +
+                            pedido.cdpedido + "|" +
+                        totalST.toFixed(2) + "|"+
+                        (pedido.cdmotivogordura > 0 ? pedido.cdmotivogordura : "") + "|" +
+                        (pedido.motivousogordura != null ? pedido.motivousogordura : "") + "|" +
+                        "\n";
+        }
+
+    	if(pedidos.length > 0) enviaPedidos(strPedido, strPedidoItem, pedidos);
+    })
+    .then(data => {
+        // success
+        // data = as returned from the task's callback
+        
+    })
+    .catch(error => {
+        // error
+        //Pedido já inserido gera cod 23505
+    });
+
+    
 });
 
 function processarPedidos(req, res, next) {
@@ -75,8 +171,6 @@ function processarPedidos(req, res, next) {
                 ' on p.codigo = ip.cdproduto '+
                 ' where ip.cdpedido = '+pedido.cdpedido+
                 ' and IP.cdvendedor = '+pedido.cdvendedor);
-
-            //processarPedidosInit(pedidos, itenspedidos);
 	    })
 	    .then(data => {
 	        // success
@@ -105,92 +199,6 @@ function processarPedidos(req, res, next) {
 	    });
 	}
 
-}
-
-function processarPedidosInit(pedidos, itenspedidos){
-    var strPedido = "<PEDIDOS>\n";
-    var strPedidoItem = "<ITEM DO PEDIDO>\n";
-
-    
-    //console.log("pedidos", pedidos);
-
-    for(var i=0; i < pedidos.length; i++) {
-        var pedido = pedidos[i];
-
-        var gorduraGerada = 0;
-        var gorduraUsada = 0;
-        var totalST = 0;
-
-        for(var j=0; j < itenspedidos.length; j++) {
-            
-            strPedidoItem += pedido.cdvendedor + "|" +
-                            pedido.cdvendedor + "|" +
-                            zeros(pedido.cdpedido,6) + "|" +
-                            itenspedidos[j].cdproduto + "|" +
-                            zeros(pedido.cdlocalfaturamento,2) + "|" +
-                            (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
-                            itenspedidos[j].tipodesc + "|" +
-                            zeros(Math.round(itenspedidos[j].qtdeproduto),6) + "|" +
-                            (itenspedidos[j].precotabela != null ? itenspedidos[j].precotabela.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].percdescontomax != null ? itenspedidos[j].percdescontomax.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].percdescontomin != null ? itenspedidos[j].percdescontomin.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].percdesconto != null ? itenspedidos[j].percdesconto.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].valordesconto != null ? itenspedidos[j].valordesconto.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].precovenda != null ? itenspedidos[j].precovenda.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].sobragordura != null ? itenspedidos[j].sobragordura.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].usogordura != null ? itenspedidos[j].usogordura.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].st != null ? itenspedidos[j].st.toFixed(2) : 0) + "|" +
-                            (itenspedidos[j].cdpedidobonificacao > 0 ? itenspedidos[j].cdpedidobonificacao : 0) + "|" +
-			    (itenspedidos[j].valornegativogordura > 0 ? itenspedidos[j].valornegativogordura.toFixed(2) : "0.00") + "|" +
-			    (itenspedidos[j].valorreferencia > 0 ? itenspedidos[j].valorreferencia.toFixed(2) : 0) + "|" +
-			    (itenspedidos[j].valorminimodisponivel > 0 ? itenspedidos[j].valorminimodisponivel.toFixed(2) : 0) + "|" +
-                            "\n";
-
-            gorduraUsada += itenspedidos[j].USOGORDURA != null || itenspedidos[j].USOGORDURA != undefined ? itenspedidos[j].USOGORDURA : 0;
-            gorduraGerada += itenspedidos[j].SOBRAGORDURA != null || itenspedidos[j].SOBRAGORDURA != undefined ? itenspedidos[j].SOBRAGORDURA : 0;
-            totalST += itenspedidos[j].ST != null || itenspedidos[j].ST != undefined ? itenspedidos[j].ST : 0;
-        }
-
-        pedido.dtpedido = dateFormat(pedido.dtpedido, "dd/mm/yyyy");
-
-        strPedido += pedido.cdvendedor + "|" +
-                    pedido.cdvendedor + "|" +
-                    zeros(pedido.cdpedido,6) + "|" +
-                    (pedido.cdclienteerp != undefined ? pedido.cdclienteerp : "") + "|" +
-                    (pedido.cdcliente != undefined ? pedido.cdcliente : "") + "|" +
-                    pedido.cnpjcliente + "|" +
-                    zeros(pedido.cdlocalfaturamento,2) + "|" +
-                    (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
-                    pedido.dtpedido + "|" +
-                    (pedido.ordem != undefined ? pedido.ordem : "") + "|" +
-                    (pedido.observacao != undefined ? pedido.observacao : "") + "|" +
-                    pedido.cdvenda + "|" +
-                    pedido.cdformapagamento + "|" +
-                    (pedido.cdcobranca == 0 ? "E" : "R")+ "|" + // "ENTREGAR", "RETIRAR"
-                    (pedido.bensuframa > 0 ? "S" : "N") + "|" +
-                    (pedido.parcela1 != null ? zeros(pedido.parcela1,3) :"000")+ "|" +
-                    (pedido.parcela2 != null ? zeros(pedido.parcela2,3) :"000")+ "|" +
-                    (pedido.parcela3 != null ? zeros(pedido.parcela3,3) :"000")+ "|" +
-                    (pedido.parcela4 != null ? zeros(pedido.parcela4,3) :"000")+ "|" +
-                    (pedido.parcela5 != null ? zeros(pedido.parcela5,3) :"000")+ "|" +
-                    "000|" +
-                    "000|" +
-                    "000|" +
-                    "000|" +
-                    pedido.situacao + "|" +
-                    (pedido.totalvenda != null ? pedido.totalvenda.toFixed(2) : "") + "|" +
-                    (pedido.totaltabela != null ? pedido.totaltabela.toFixed(2) : "") + "|" +
-                    (pedido.totaldesconto != null ? pedido.totaldesconto.toFixed(2) : "") + "|" +
-                    gorduraGerada.toFixed(2) + "|" +
-                    gorduraUsada.toFixed(2) + "|" +
-                        pedido.cdpedido + "|" +
-                    totalST.toFixed(2) + "|"+
-                    (pedido.cdmotivogordura > 0 ? pedido.cdmotivogordura : "") + "|" +
-                    (pedido.motivousogordura != null ? pedido.motivousogordura : "") + "|" +
-                    "\n";
-    }
-
-    enviaPedidos(strPedido, strPedidoItem, pedidos);
 }
 
 function processarClientesInit(clientes){
@@ -256,41 +264,59 @@ function zeros(value, qtd){
     return result;
 }
 
-function enviaPedidos(strPedido, strPedidoItem, pedidos){
+async function enviaPedidos(strPedido, strPedidoItem, pedidos){
 
 	var buffer = Buffer.from(strPedido + strPedidoItem);
 
 	var d = new Date();
-	var nome = "Pedidos_" + dateFormat(d, "yyyyMMddHHmmss") + ".txt";
-    //console.log("a processar, enviando");
-    ftp.put(buffer, "upload/"+nome, err => {
+	var nome = "Pedidos_" + dateFormat(d, "yyyymmddHHMMss") + ".txt";
+
+    await ftp_pedido.put(buffer, "upload/"+nome, err => {
+      if (!err) {
+        console.log("Pedidos gravados na pasta temporaria!");
+      }else{
+        console.log("Error_pedido: "+err);
+      }
+    });
+
+    await ftp_pedido_tmp.put(buffer, "upload_tmp/pedidos/"+nome, err => {
 	  if (!err) {
-	    console.log("File transferred successfully!");
+	    console.log("Setando como enviados!");
 	    setaPedidosEnviados(pedidos)
 	  }else{
-	  	console.log("Error: "+err);
+	  	console.log("Error_pedido_tmp: "+err);
 	  }
 	});
 
 	return "teste";
 }
 
-function enviaClientes(strCliente, clientes){
+async function enviaClientes(strCliente, clientes){
 
 	var buffer = Buffer.from(strCliente);
 
 	var d = new Date();
-	var nome = "Clientes_" + dateFormat(d, "yyyyMMddHHmmss") + ".txt";
+	var nome = "Clientes_" + dateFormat(d, "yyyymmddHHMMss") + ".txt";
     //console.log("a processar, enviando");
     if(clientes.length > 0){
-        ftp.put(buffer, "upload/"+nome, err => {
-        if (!err) {
-            console.log("File transferred successfully!");
-            setaClientesEnviados(clientes)
-        }else{
-            console.log("Error: "+err);
-        }
+        
+        await ftp_cliente.put(buffer, "upload/"+nome, err => {
+            if (!err) {
+                console.log("File transferred successfully!");
+            }else{
+                console.log("Error_cliente: "+err);
+            }
         });
+
+        await ftp_cliente_tmp.put(buffer, "upload_tmp/clientes/"+nome, err => {
+            if (!err) {
+                console.log("Clientes gravados na pasta temporaria!");
+                setaClientesEnviados(clientes);
+            }else{
+                console.log("Error_cliente_tmp: "+err);
+            }
+        });
+
     }
 
 }
@@ -337,8 +363,8 @@ function setaClientesEnviados(clientes){
 	for(var i=0; i < clientes.length; i++) {
 		var cliente = clientes[i];
         
-        if(cliente.codigo != null && cliente.codigointerno > 0){
-            query_update += "update clientes set enviadoftp = true where codigo = "+cliente.codigointerno+";";
+        if(cliente.codigo != null && cliente.codigo > 0){
+            query_update += "update clientes set enviadoftp = true where codigo = "+cliente.codigo+";";
         }else{
             query_update += "update clientes set enviadoftp = true where codigointerno = "+cliente.codigointerno+";";
         }
@@ -441,7 +467,29 @@ function liberarPedidoPendente(req, res, next){
         return res.status(400).json({error: '(cdcliente) obrigatorio no corpo da requisicao para carregar o pedido'});
     }
 	
-	db.any("update pedidos set pendente = '1' where 1=1 "+fVendedor+fcliente+fpedido)
+    if(param.cdsupervisor == undefined && param.cdsupervisor.localeCompare('') == 0){
+        return res.status(400).json({error: '(cdsupervisor) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+
+    if(param.gorduraliberada == undefined && param.gorduraliberada == 0){
+        return res.status(400).json({error: '(gorduraliberada) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+
+    if(param.dataliberada == undefined && param.dataliberada.localeCompare('') == 0){
+        return res.status(400).json({error: '(dataliberada) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+
+    sql = "update pedidos set pendente = '1' where 1=1 "+fVendedor+fcliente+fpedido+"; ";
+    sql += "INSERT INTO pedidos_aprovados(cdsupervisor,cdvendedor,cdpedido,gorduraliberada,dataliberada) VALUES ";
+    sql += "("+ (param.cdsupervisor.localeCompare('') == 0 ? null : param.cdsupervisor)
+        +","+ (param.cdvendedor.localeCompare('') == 0 ? null : param.cdvendedor)
+        +","+ (param.cdpedido.localeCompare('') == 0 ? null : param.cdpedido)
+        +","+ (param.gorduraliberada == 0 ? null : param.gorduraliberada.toString().replace(/,/, '.'))
+        +","+ (param.dataliberada.localeCompare('') == 0 ? null : "'"+param.dataliberada+"'")
+        +"); ";
+
+    console.log(sql);
+	db.any(sql)
 		.then(data =>  {
 	        // success
 	        // data = as returned from the task's callback

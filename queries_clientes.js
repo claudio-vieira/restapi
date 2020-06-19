@@ -95,6 +95,48 @@ function recuperarClientePorCodigoEVendedor(req, res, next) {
     });
 }
 
+function recuperarCidadesPorPedidosPorCliente(req, res, next) {
+    var cdvendedor = req.body.cdvendedor;
+    var uf = req.body.uf;
+    
+    if(cdvendedor == undefined || cdvendedor == null || cdvendedor == "" ||
+        uf == undefined || uf == null || uf == ""){
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_cidades: null,
+                    message: 'Campo cdvendedor e uf obrigatorio.'
+                });
+        return;
+    }
+
+    var sql = "select c.cidade from pedidos p "+
+                "inner join vendedores v on v.codigo = p.cdvendedor "+
+                "inner join clientes c on c.codigo = p.cdcliente "+
+                "where p.cdvendedor = "+cdvendedor+" and c.uf = '"+uf+"' "+
+                "group by c.cidade";
+
+    db.any(sql)
+        .then(function (data) {
+            var items = Object.keys(data);
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_cidades: data,
+                    message: 'Retrieved cidades'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_cidades: 'Nao existe cidades ou houve algum problema: '+err,
+                    message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
+                });
+    });
+}
+
 function retornaTabelaParaValidacao(nomeTabela){
     var p1 = new Promise(
         function(resolve, reject) {         
@@ -286,6 +328,7 @@ module.exports = {
     recuperarClientes: recuperarClientes,
     recuperarClientePorVendedor: recuperarClientePorVendedor,
     recuperarClientePorCodigoEVendedor: recuperarClientePorCodigoEVendedor,
+    recuperarCidadesPorPedidosPorCliente: recuperarCidadesPorPedidosPorCliente,
     deletarClientes: deletarClientes,
     deletarClientePorCodigo: deletarClientePorCodigo,
     inserirClientes: inserirClientes

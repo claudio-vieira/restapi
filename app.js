@@ -122,6 +122,7 @@ app.post('/api/deletarTipoTabela', db_tipo_tabela.deletarTipoTabela);
 //Chamadas dos Supervisores
 app.post('/api/recuperarSupervisores', db_supervisores.recuperarSupervisores);
 app.post('/api/recuperarSupervisorPorCodigo', db_supervisores.recuperarSupervisorPorCodigo);
+app.post('/api/recuperarSupervisorPorCodigoGorduraAnoMes', db_supervisores.recuperarSupervisorPorCodigoGorduraAnoMes);
 app.post('/api/recuperarSupervisorParaLogin', db_supervisores.recuperarSupervisorParaLogin);
 app.post('/api/inserirSupervisores', db_supervisores.inserirSupervisores);
 app.post('/api/deletarSupervisorPorCodigo', db_supervisores.deletarSupervisorPorCodigo);
@@ -245,7 +246,10 @@ app.post('/api/deletarlocalfaturamento', db_local_faturamento.deletarLocalFatura
 app.post('/api/recuperarItensPedido', db_itens_pedido.recuperarItensPedido);
 app.post('/api/recuperarItensPedidoPorCodigo', db_itens_pedido.recuperarItensPedidoPorCodigo);
 app.post('/api/recuperarItensPedidoPorVendedor', db_itens_pedido.recuperarItensPedidoPorVendedor);
+app.post('/api/recuperarPorVendedorPedidoProduto', db_itens_pedido.recuperarPorVendedorPedidoProduto);
 app.post('/api/recuperarItensPorPedido', db_itens_pedido.recuperarItensPorPedido);
+app.post('/api/recuperarItensPorIdsPedidos', db_itens_pedido.recuperarItensPorIdsPedidos);
+app.post('/api/recuperarItensIdsPedidoPorCodigo', db_itens_pedido.recuperarItensIdsPedidoPorCodigo);
 app.post('/api/inserirItensPedido', db_itens_pedido.inserirItensPedido);
 app.post('/api/deletarItensPedidoPorCodigo', db_itens_pedido.deletarItensPedidoPorCodigo);
 app.post('/api/deletarItensPedido', db_itens_pedido.deletarItensPedido);
@@ -257,6 +261,8 @@ app.post('/api/recuperarPedidosPorVendedor', db_pedidos.recuperarPedidosPorVende
 app.post('/api/recuperarPedidosPorCodigoEVendedor', db_pedidos.recuperarPedidosPorCodigoEVendedor);
 app.post('/api/recuperarPedidosPendentesSupervisor', db_pedidos.recuperarPedidosPendentesSupervisor);
 app.post('/api/recuperarUltimoPedidoPorCodigoCliente', db_pedidos.recuperarUltimoPedidoPorCodigoCliente);
+app.post('/api/recuperarPedidosPorCliente', db_pedidos.recuperarPedidosPorCliente);
+app.post('/api/recuperarPedidosPorFiltros', db_pedidos.recuperarPedidosPorFiltros);
 app.post('/api/inserirPedidos', db_pedidos.inserirPedidos);
 app.post('/api/deletarPedidoPorCodigo', db_pedidos.deletarPedidoPorCodigo);
 app.post('/api/deletarPedidos', db_pedidos.deletarPedidos);
@@ -265,6 +271,9 @@ app.post('/api/deletarPedidos', db_pedidos.deletarPedidos);
 //Chamadas para vendedores
 app.post('/api/recuperarVendedores', db_vendedores.recuperarVendedores);
 app.post('/api/recuperarVendedoresPorCodigo/', db_vendedores.recuperarVendedorPorCodigo);
+app.post('/api/recuperarVendedorPorNome/', db_vendedores.recuperarVendedorPorNome);
+app.post('/api/recuperarVendedorPorNomeCodigo/', db_vendedores.recuperarVendedorPorNomeCodigo);
+app.post('/api/recuperarVendedorPorCdSupervisor/', db_vendedores.recuperarVendedorPorCdSupervisor);
 app.post('/api/atualizarVendedor/', db_vendedores.atualizarVendedor);
 app.post('/api/inserirVendedores/', db_vendedores.inserirVendedores);
 app.post('/api/deletarVendedores/', db_vendedores.deletarVendedores);
@@ -275,6 +284,7 @@ app.post('/api/deletarVendedorPorCodigo/', db_vendedores.deletarVendedorPorCodig
 app.post('/api/recuperarClientes', db_clientes.recuperarClientes);
 app.post('/api/recuperarClientePorVendedor/', db_clientes.recuperarClientePorVendedor);
 app.post('/api/recuperarClientePorCodigoEVendedor/', db_clientes.recuperarClientePorCodigoEVendedor);
+app.post('/api/recuperarCidadesPorPedidosPorCliente/', db_clientes.recuperarCidadesPorPedidosPorCliente);
 app.post('/api/deletarClientes/', db_clientes.deletarClientes);
 app.post('/api/deletarClientePorCodigo/', db_clientes.deletarClientePorCodigo);
 app.post('/api/inserirClientes/', db_clientes.inserirClientes);

@@ -58,6 +58,111 @@ function recuperarVendedorPorCodigo(req, res, next) {
     });
 }
 
+function recuperarVendedorPorNome(req, res, next) {
+    var nome = req.body.nome;
+    db.any("select * from vendedores where nome like '%"+nome+"%'")
+        .then(function (data) {
+            var items = Object.keys(data);
+            items.forEach(function(item) {
+                if(data[item] == null){
+                   data[item] = '';
+                }
+            });
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_sellers: data,
+                    message: 'Retrieved ONE vendedor'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_sellers: 'Não existe o vendedor ou houve algum problema',
+                    message: 'Err: '+err
+                });
+    });
+}
+
+function recuperarVendedorPorNomeCodigo(req, res, next) {
+    var nome = req.body.nome;
+    var sql;
+    var empty = [];
+    if(nome == undefined || nome == ""){
+        return res.status(200)
+                .json({
+                    status: 'Warning',
+                    data_sellers: empty,
+                    message: 'Favor enviar algum valor'
+                });
+        //sql = "select * from vendedores";
+    }else{
+        sql = "select * from vendedores where nome like '%"+nome.toUpperCase()+"%' or CAST(codigo AS VARCHAR(250)) like '"+nome.toUpperCase()+"'";
+    }
+    console.log(sql);
+    db.any(sql)
+        .then(function (data) {
+            var items = Object.keys(data);
+            items.forEach(function(item) {
+                if(data[item] == null){
+                   data[item] = '';
+                }
+            });
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_sellers: data,
+                    message: 'Retrieved ONE vendedor'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_sellers: 'Não existe o vendedor ou houve algum problema',
+                    message: 'Err: '+err
+                });
+    });
+}
+
+function recuperarVendedorPorCdSupervisor(req, res, next) {
+    var cdsupervisor = req.body.cdsupervisor;
+    var sql;
+    /*if(cdsupervisor == undefined || cdsupervisor == ""){
+        sql = "select * from vendedores";
+    }else{
+        sql = "select * from vendedores where nome like '%"+nome.toUpperCase()+"%' or CAST(codigo AS VARCHAR(250)) like '"+nome.toUpperCase()+"'";
+    }*/
+    console.log(sql);
+    db.any("select v.* from vendedores v inner join supervisionados s on s.cdvendedor = v.codigo where s.cdsupervisor = "+cdsupervisor)
+        .then(function (data) {
+            var items = Object.keys(data);
+            items.forEach(function(item) {
+                if(data[item] == null){
+                   data[item] = '';
+                }
+            });
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_sellers: data,
+                    message: 'Retrieved List of vendedores'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_sellers: 'Não existe o vendedor ou houve algum problema',
+                    message: 'Err: '+err
+                });
+    });
+}
+
 function inserirVendedores(req, res, next) {
     var vendedor;
     
@@ -210,9 +315,12 @@ function atualizarVendedor(req, res, next){
 module.exports = {
     recuperarVendedores: recuperarVendedores,
     recuperarVendedorPorCodigo: recuperarVendedorPorCodigo,
+    recuperarVendedorPorNome: recuperarVendedorPorNome,
+    recuperarVendedorPorNomeCodigo: recuperarVendedorPorNomeCodigo,
+    recuperarVendedorPorCdSupervisor: recuperarVendedorPorCdSupervisor,
     inserirVendedores: inserirVendedores,
     atualizarVendedor:atualizarVendedor,
     deletarVendedores: deletarVendedores,
-    deletarVendedorPorCodigo: deletarVendedorPorCodigo,
+    deletarVendedorPorCodigo: deletarVendedorPorCodigo
     //criarVendedor: criarVendedor
 };

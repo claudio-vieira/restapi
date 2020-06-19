@@ -33,7 +33,7 @@ function recuperarSupervisores(req, res, next) {
 function recuperarSupervisorPorCodigo(req, res, next) {
     var codigo = parseInt(req.body.codigo);
 
-    db.one('SELECT * FROM supervisores WHERE codigo = $1', codigo)
+    db.one('SELECT * FROM supervisores s WHERE s.codigo = $1', codigo)
         .then(function (data) {
             var items = Object.keys(data);
             /*items.forEach(function(item) {
@@ -54,6 +54,44 @@ function recuperarSupervisorPorCodigo(req, res, next) {
                 .json({
                     status: 'Warning',
                     data_supervisores: 'NÃ£o existe o supervisor ou houve algum problema',
+                    message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
+                });
+    });
+}
+
+function recuperarSupervisorPorCodigoGorduraAnoMes(req, res, next) {
+    var codigo = parseInt(req.body.codigo);
+    var anomes = parseInt(req.body.anomes);
+
+    if(codigo == undefined || codigo == '' || anomes == undefined || anomes == ''){
+        return res.status(401).json({error: 'Obrigatorio o parametro (codigo) e (anomes) no corpo da requisicao'});
+    }
+
+    //Query retorna os campos do supervisor mais a quantidade de gordura usada por ele no mês atual
+    sql = "SELECT s.*, "+
+        "coalesce((select sum(gorduraliberada) from pedidos_aprovados where cdsupervisor = "+codigo+" and dataliberada like '"+anomes+"'), 0) as saldoGorduraUsado, "+
+        "coalesce((select valorgordura from saldo_gordura_sup where cdsupervisor = "+codigo+" and validadegordura like '"+anomes+"'), 0) as saldoGorduraInicio "+
+        "FROM supervisores s  "+
+        "LEFT JOIN pedidos_aprovados p on cdsupervisor = s.codigo "+
+        "WHERE s.codigo = "+codigo+" group by s.codigo";
+
+    console.log(sql);
+    db.one(sql)
+        .then(function (data) {
+            var items = Object.keys(data);
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_supervisores: data,
+                    message: 'Retrieved ONE supervisor'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_supervisores: 'Nao existe o supervisor ou houve algum problema',
                     message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
                 });
     });
@@ -80,7 +118,7 @@ function recuperarSupervisorParaLogin(req, res, next) {
                 .json({
                     status: 'Warning',
                     data_supervisores: '',
-                    message: 'Supervisor não encontrado.'
+                    message: 'Supervisor nao encontrado.'
                 });
             }else{
             return res.status(200)
@@ -96,7 +134,7 @@ function recuperarSupervisorParaLogin(req, res, next) {
         res.status(400)
                 .json({
                     status: 'Warning',
-                    data_supervisores: 'Não existe o supervisor ou houve algum problema',
+                    data_supervisores: 'Nao existe o supervisor ou houve algum problema',
                     message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
                 });
     });
@@ -104,7 +142,7 @@ function recuperarSupervisorParaLogin(req, res, next) {
 
 function inserirSupervisores(req, res, next) {
     var supervisores;
-    var query_insert = "INSERT INTO supervisores(codigo,descricao,situacao,percdesconto) VALUES ";
+    var query_insert = "INSERT INTO supervisores(codigo,descricao,situacao,percdesconto,valorgordura,validadegordura,email) VALUES ";
 
     //Percorre os supervisores para salvar
     for (i in req.body) {
@@ -115,6 +153,9 @@ function inserirSupervisores(req, res, next) {
                         +","+ (supervisores.descricao.localeCompare('') == 0 ? null : "'"+supervisores.descricao+"'")
                         +","+ (supervisores.situacao.localeCompare('') == 0 ? null : "'"+supervisores.situacao+"'")
                         +","+ (supervisores.percdesconto.localeCompare('') == 0 ? null : supervisores.percdesconto.replace(/,/, '.'))
+                        +","+ (supervisores.valorgordura.localeCompare('') == 0 ? null : supervisores.valorgordura.replace(/,/, '.'))
+                        +","+ (supervisores.validadegordura.localeCompare('') == 0 ? null : "'"+supervisores.validadegordura+"'")
+                        +","+ (supervisores.email.localeCompare('') == 0 ? null : "'"+supervisores.email+"'")
                         +"), ";
     }
     query_insert = query_insert.substring(0, query_insert.length-2)+";";
@@ -184,6 +225,7 @@ function deletarSupervisorPorCodigo(req, res, next) {
 module.exports = {
     recuperarSupervisores: recuperarSupervisores,
     recuperarSupervisorPorCodigo: recuperarSupervisorPorCodigo,
+    recuperarSupervisorPorCodigoGorduraAnoMes: recuperarSupervisorPorCodigoGorduraAnoMes,
     recuperarSupervisorParaLogin: recuperarSupervisorParaLogin,
     inserirSupervisores: inserirSupervisores,
     deletarSupervisorPorCodigo: deletarSupervisorPorCodigo,
