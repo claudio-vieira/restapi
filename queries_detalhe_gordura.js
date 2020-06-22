@@ -83,20 +83,38 @@ function inserirDetalheGordura(req, res, next) {
         detalheGordura = req.body[i];
 
 
-        query_insert += "("+ (detalheGordura.cdvendedor.localeCompare('') == 0 ? null : detalheGordura.cdvendedor)
-                        +","+(detalheGordura.nunotafiscal.localeCompare('') == 0 ? null : detalheGordura.nunotafiscal)
-                        +","+(detalheGordura.addgordura.localeCompare('') == 0 ? null : detalheGordura.addgordura.toString().replace(/,/, '.'))
-                        +","+ (detalheGordura.subgordura.localeCompare('') == 0 ? null : detalheGordura.subgordura.toString().replace(/,/, '.'))
+        query_insert += "("+ (detalheGordura.cdvendedor == 0 ? null : detalheGordura.cdvendedor)
+                        +","+(detalheGordura.nunotafiscal == 0 ? null : detalheGordura.nunotafiscal)
+                        +","+(detalheGordura.addgordura == 0 ? null : detalheGordura.addgordura.toString().replace(/,/, '.'))
+                        +","+ (detalheGordura.subgordura == 0 ? null : detalheGordura.subgordura.toString().replace(/,/, '.'))
                         +"), ";
         var valor = (parseFloat(detalheGordura.addgordura.toString().replace(/,/, '.')) + (-parseFloat(detalheGordura.subgordura.toString().replace(/,/, '.'))));
         //Alredy object in vector 
-        if(saldoPorVendedor.some(saldo => saldo.cdvendedor === detalheGordura.cdvendedor)){
+        /*if(saldoPorVendedor.some(saldo => saldo.cdvendedor === detalheGordura.cdvendedor)){
             var objIndex = saldoPorVendedor.findIndex((obj => obj.cdvendedor == detalheGordura.cdvendedor));
             saldoPorVendedor[objIndex].valor = (saldoPorVendedor[objIndex].valor + (valor));
         }
         //Don't have object in vector
         else{
             saldoPorVendedor.push({cdvendedor:detalheGordura.cdvendedor,saldo:valor});
+        }*/
+
+        //Alredy object in vector 
+        if(saldoPorVendedor.some(saldo => saldo.cdvendedor === detalheGordura.cdvendedor)){
+            var objIndex = saldoPorVendedor.findIndex(obj => obj.cdvendedor === detalheGordura.cdvendedor);
+            //console.log("objIndex", objIndex);
+            //console.log("TESTE X", saldoPorVendedor[objIndex].saldo);
+            saldoPorVendedor[objIndex].saldo = (saldoPorVendedor[objIndex].saldo + (valor));
+            //console.log("TESTE Y", saldoPorVendedor[objIndex].saldo);
+            //console.log("saldoPorVendedor", saldoPorVendedor);
+        }
+        //Don't have object in vector
+        else{
+            //console.log("TESTE 6", {cdvendedor:detalheGordura[0],saldo:valor});
+            //console.log("TESTE X", saldoPorVendedor[objIndex].valor);
+            saldoPorVendedor.push({cdvendedor:detalheGordura.cdvendedor,saldo:valor});
+            //console.log("TESTE Y", saldoPorVendedor[objIndex].valor);
+            //console.log("saldoPorVendedor", saldoPorVendedor);
         }
     }
 

@@ -170,12 +170,7 @@ function deletarSaldoGorduraPorCodigo(req, res, next) {
 
 function atualizarSaldoGordura(req, res, next){
 	const param = req.body;
-
-	var fpedido = '';
-    var fVendedor = '';
-	var fcliente = '';
-	
-	
+		
     if(param.saldogordura == undefined || param.saldogordura == ''){
         return res.status(400).json({error: '(saldogordura) obrigatorio no corpo da requisicao'});
     }
@@ -183,32 +178,22 @@ function atualizarSaldoGordura(req, res, next){
     if(param.cdvendedor == undefined || param.cdvendedor == ''){
         return res.status(400).json({error: '(cdvendedor) obrigatorio no corpo da requisicao'});
     }
-	
-	db.any("update saldo_gordura set saldogordura = "+param.saldogordura+" where cdvendedor = "+param.cdvendedor)
-		.then(data =>  {
-	        // success
-	        // data = as returned from the task's callback
-			//console.log("Pedido rejeitado com sucesso");
 
-			return res.status(200)
-				.json({
-					status: 'success',
-					data_pedidos: data,
-					message: 'Saldo atualizado com sucesso'
-				});
+    db.task('update-saldo', async t => {
 
-		}).catch(error => {
-			console.log("Ocorreu um erro ao atualizar o saldo de gordura  \n", error);
-		
-			return res.status(500)
-			.json({
-				status: 'Warning',
-				data_pedidos: 'Houve algum problema',
-				message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador'
-			});
-            
-	    });
-	
+        await t.any('update saldo_gordura set saldogordura = '+param.saldogordura+' where saldonovo = false and cdvendedor = '+param.cdvendedor);
+        await t.any('update saldo_gordura set saldonovo = false where and cdvendedor = '+param.cdvendedor);
+
+    })
+    .then(data => {
+        // success
+        // data = as returned from the task's callback
+        
+    })
+    .catch(error => {
+        // error
+        //Pedido já inserido gera cod 23505
+    });
 }
 
 module.exports = {
