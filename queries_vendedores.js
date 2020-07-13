@@ -101,7 +101,7 @@ function recuperarVendedorPorNomeCodigo(req, res, next) {
     }else{
         sql = "select * from vendedores where nome like '%"+nome.toUpperCase()+"%' or CAST(codigo AS VARCHAR(250)) like '"+nome.toUpperCase()+"'";
     }
-    console.log(sql);
+    //console.log(sql);
     db.any(sql)
         .then(function (data) {
             var items = Object.keys(data);
@@ -322,5 +322,4 @@ module.exports = {
     atualizarVendedor:atualizarVendedor,
     deletarVendedores: deletarVendedores,
     deletarVendedorPorCodigo: deletarVendedorPorCodigo
-    //criarVendedor: criarVendedor
 };

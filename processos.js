@@ -70,6 +70,8 @@ cron.schedule("*/20 * * * * *", function() {
             	' where ip.cdpedido = '+pedido.cdpedido+
             	' and ip.cdvendedor = '+pedido.cdvendedor);
 
+            //Somente envia os pedidos que tenham itens
+            if(itenspedidos == undefined || itenspedidos.length == 0){ continue; }
 
             for(var j=0; j < itenspedidos.length; j++) {
             
