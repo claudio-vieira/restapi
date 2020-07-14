@@ -33,6 +33,13 @@ var ftp_cliente_tmp = new jsftp({
   pass: "Integra@01" // defaults to "@anonymous"
 });
 
+var ftp_checar_arquivo = new jsftp({
+    host: "54.94.243.33",
+    port: 21, // defaults to 21
+    user: "liane", // defaults to "anonymous"
+    pass: "Integra@01" // defaults to "@anonymous"
+  });
+
 cron.schedule("*/20 * * * * *", function() { 
     console.log("running a task every minute");
 
@@ -51,10 +58,16 @@ cron.schedule("*/20 * * * * *", function() {
 
     
     db.task('insert-pedidos', async t => {
-        
-        const pedidos = await t.any('SELECT p.*,c1.idtipotabela as c1_idtipotabela, c2.idtipotabela as c2_idtipotabela FROM pedidos p LEFT JOIN clientes c1 on c1.codigo = p.cdcliente LEFT JOIN clientes c2 on c2.cnpj = p.cnpjcliente WHERE c2.cdvendedor = p.cdvendedor and p.enviadoftp is false and p.pendente = 1');
+    
+        var sql = "SELECT p.*,c1.idtipotabela as c1_idtipotabela, c2.idtipotabela as c2_idtipotabela "+
+        "FROM pedidos p "+
+        "LEFT JOIN clientes c1 on c1.codigo = p.cdcliente and c1.cdvendedor = p.cdvendedor "+
+        "LEFT JOIN clientes c2 on c2.cnpj = p.cnpjcliente and c2.cdvendedor = p.cdvendedor "+
+        "WHERE p.enviadoftp is false and p.pendente = 1 ";
+    
+        const pedidos = await t.any(sql);
        
-   	 var strPedido = "<PEDIDOS>\n";
+   	    var strPedido = "<PEDIDOS>\n";
     	var strPedidoItem = "<ITEM DO PEDIDO>\n";
 
     	for(var i=0; i < pedidos.length; i++) {
@@ -142,7 +155,11 @@ cron.schedule("*/20 * * * * *", function() {
                         "\n";
         }
 
-    	if(pedidos.length > 0) enviaPedidos(strPedido, strPedidoItem, pedidos);
+        if(pedidos.length > 0 
+            && strPedido.localeCompare("<PEDIDOS>\n") != 0
+            && strPedidoItem.localeCompare("<ITEM DO PEDIDO>\n") != 0){
+            enviaPedidos(strPedido, strPedidoItem, pedidos);
+        }
     })
     .then(data => {
         // success
@@ -283,8 +300,51 @@ async function enviaPedidos(strPedido, strPedidoItem, pedidos){
 
     await ftp_pedido_tmp.put(buffer, "upload_tmp/pedidos/"+nome, err => {
 	  if (!err) {
-	    console.log("Setando como enviados!");
-	    setaPedidosEnviados(pedidos)
+	    //console.log("Setando como enviados!");
+        //setaPedidosEnviados(pedidos);
+        
+        //var linhas = ""; // Will store the contents of the file
+        ftp_checar_arquivo.get("upload_tmp/pedidos/"+nome, (erro, socket) => {
+            if (erro) {
+                return;
+            }
+        
+            socket.on("data", d => {
+                
+                var linhas = d.toString().split("\n");
+                var pedidos_enviados = new Array();
+                
+                for (i in linhas) {
+                    console.log("teste ", linhas[i]);
+                    //Ao checar na tag de item não é necessario continuar o laço repetidor
+                    if(linhas[i].trim().includes("<ITEM DO PEDIDO>")) {
+                        break;
+                    }
+                    //Coleta todos os pedidos já enviados no arquivo
+                    if(!linhas[i].includes("<")){
+                        for(var j=0; j < pedidos.length; j++) {
+                            var pedido = pedidos[j];
+                            //Se o pedido que esta no arquivo estiver no array de pedidos enviados então
+                            //cria um array
+                            if(parseInt(pedido.cdpedido) == parseInt(linhas[i].split("|")[2])){
+                                pedidos_enviados.push(pedido);
+                            }   
+                        }
+                    }
+                }
+
+                if(pedidos_enviados.length > 0) setaPedidosEnviados(pedidos_enviados);
+            });
+        
+            socket.on("close", err => {
+                if (err) {
+                console.error("There was an error retrieving the file.");
+                }
+            });
+        
+            socket.resume();
+        });
+
 	  }else{
 	  	console.log("Error_pedido_tmp: "+err);
 	  }
