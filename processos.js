@@ -84,7 +84,8 @@ cron.schedule("*/20 * * * * *", function() {
             	' and ip.cdvendedor = '+pedido.cdvendedor);
 
             //Somente envia os pedidos que tenham itens
-            if(itenspedidos == undefined || itenspedidos.length == 0){ continue; }
+            if((itenspedidos == undefined || itenspedidos.length == 0) 
+                && pedido.situacao != 9){ continue; }
 
             for(var j=0; j < itenspedidos.length; j++) {
             
@@ -156,8 +157,7 @@ cron.schedule("*/20 * * * * *", function() {
         }
 
         if(pedidos.length > 0 
-            && strPedido.localeCompare("<PEDIDOS>\n") != 0
-            && strPedidoItem.localeCompare("<ITEM DO PEDIDO>\n") != 0){
+            && strPedido.localeCompare("<PEDIDOS>\n") != 0){
             enviaPedidos(strPedido, strPedidoItem, pedidos);
         }
     })
@@ -315,7 +315,7 @@ async function enviaPedidos(strPedido, strPedidoItem, pedidos){
                 var pedidos_enviados = new Array();
                 
                 for (i in linhas) {
-                    console.log("teste ", linhas[i]);
+                    //console.log("teste ", linhas[i]);
                     //Ao checar na tag de item não é necessario continuar o laço repetidor
                     if(linhas[i].trim().includes("<ITEM DO PEDIDO>")) {
                         break;
