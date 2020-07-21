@@ -4,6 +4,7 @@ var dateFormat = require('dateformat');
 const cron = require("node-cron");
 const jsftp = require("jsftp");
 var fs = require("fs");
+//const client = require('twilio')();
 
 var ftp_pedido = new jsftp({
   host: "54.94.243.33",
@@ -39,6 +40,21 @@ var ftp_checar_arquivo = new jsftp({
     user: "liane", // defaults to "anonymous"
     pass: "Integra@01" // defaults to "@anonymous"
   });
+
+// Download the Node helper library from twilio.com/docs/node/install
+// These are your accountSid and authToken from https://www.twilio.com/console
+//const accountSid = "ACf6fcbadfd25f42a64b4c66e89bf0b217";
+//const authToken = "c667ae203b251269749b7247928a8e9e";
+
+//const client = require('twilio')(accountSid, authToken);
+
+//cron.schedule("*/20 * * * * *", function() { 
+    /*client.messages.create({
+        from: 'whatsapp:+14155238886',
+        body: 'Teste claudio!',
+        to: 'whatsapp:+64210532577'
+    }).then(message => console.log(message.sid));  */ 
+//});
 
 cron.schedule("*/20 * * * * *", function() { 
     console.log("running a task every minute");
@@ -94,7 +110,7 @@ cron.schedule("*/20 * * * * *", function() {
                                 zeros(pedido.cdpedido,6) + "|" +
                                 itenspedidos[j].cdproduto + "|" +
                                 zeros(pedido.cdlocalfaturamento,2) + "|" +
-                                (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
+                                (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? (pedido.c1_idtipotabela != undefined && pedido.c1_idtipotabela != null ? zeros(pedido.c1_idtipotabela,4) : "") : zeros(pedido.c2_idtipotabela,4) ) + "|" +
                                 itenspedidos[j].tipodesc + "|" +
                                 zeros(Math.round(itenspedidos[j].qtdeproduto),6) + "|" +
                                 (itenspedidos[j].precotabela != null ? itenspedidos[j].precotabela.toFixed(2) : 0) + "|" +
@@ -126,7 +142,8 @@ cron.schedule("*/20 * * * * *", function() {
                         (pedido.cdcliente != undefined ? pedido.cdcliente : "") + "|" +
                         pedido.cnpjcliente + "|" +
                         zeros(pedido.cdlocalfaturamento,2) + "|" +
-                        (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
+                        //(pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
+                        (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? (pedido.c1_idtipotabela != undefined && pedido.c1_idtipotabela != null ? zeros(pedido.c1_idtipotabela,4) : "") : zeros(pedido.c2_idtipotabela,4) ) + "|" +
                         pedido.dtpedido + "|" +
                         (pedido.ordem != undefined ? pedido.ordem : "") + "|" +
                         (pedido.observacao != undefined ? pedido.observacao : "") + "|" +
