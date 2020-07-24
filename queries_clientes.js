@@ -95,6 +95,37 @@ function recuperarClientePorCodigoEVendedor(req, res, next) {
     });
 }
 
+function recuperarClientePorCnpjEVendedor(req, res, next) {
+    var cdvendedor = parseInt(req.body.cdvendedor);
+    var cnpj = req.body.cnpj;
+
+    if(cdvendedor == undefined || cdvendedor == 0){
+        return res.status(401).json({error: '(cdvendedor) obrigatorio no corpo da requisicao para carregar o cliente'});
+    }else if(cnpj == undefined || cnpj == ''){
+        return res.status(401).json({error: '(cnpj) obrigatorio no corpo da requisicao para carregar o cliente'});
+    }
+
+    db.any("SELECT * FROM clientes WHERE cnpj = '"+cnpj+"' AND cdvendedor = "+cdvendedor)
+        .then(function (data) {
+            var items = Object.keys(data);
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_clients: data,
+                    message: 'Retrieved ONE cliente'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_clients: 'Nao existe o cliente ou houve algum problema',
+                    message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
+                });
+    });
+}
+
 function recuperarCidadesPorPedidosPorCliente(req, res, next) {
     var cdvendedor = req.body.cdvendedor;
     var uf = req.body.uf;
@@ -162,10 +193,12 @@ function inserirClientes(req, res, next) {
         var localFaturamento = retornaTabelaParaValidacao('local_faturamento');   
         localFaturamento.then(resLocalFaturamento => {
     
-            var query_insert = "INSERT INTO clientes("
+            var query_insert = "";
+
+            /*var query_insert = "INSERT INTO clientes("
                                         +"cdvendedor,idfilial,codigo,codigointerno,nome,fantasia,endereco,numeroendereco,complementoendereco,"
                                         +"bairro,cidade,uf,cep,cnpj,inscrestadual,fone,celular,fax,contato,contato2,email,tipopessoa,regapuracao,"
-                                        +"limcred,situacao,possuiie,liminarst,idtipotabela,suframa,email2,email3,dtultimavisita,regimest,enviadoftp) VALUES  ";
+                                        +"limcred,situacao,possuiie,liminarst,idtipotabela,suframa,email2,email3,dtultimavisita,regimest,enviadoftp) VALUES  ";*/
 
             //Percorre os clientes para salvar
             for (i in req.body) {
@@ -202,6 +235,11 @@ function inserirClientes(req, res, next) {
                     //console.log("dtultimavisita: ", cliente.dtultimavisita);
                     //console.log("codigointerno: ", cliente.codigointerno);
 
+                    query_insert += "INSERT INTO clientes("
+                    +"cdvendedor,idfilial,codigo,codigointerno,nome,fantasia,endereco,numeroendereco,complementoendereco,"
+                    +"bairro,cidade,uf,cep,cnpj,inscrestadual,fone,celular,fax,contato,contato2,email,tipopessoa,regapuracao,"
+                    +"limcred,situacao,possuiie,liminarst,idtipotabela,suframa,email2,email3,dtultimavisita,regimest,enviadoftp) VALUES  ";
+
                     query_insert += 
                                 "("+(cliente.cdvendedor == undefined || cliente.cdvendedor.toString().localeCompare('') == 0 ? null : cliente.cdvendedor)
                                 +","+(cliente.idfilial == undefined || cliente.idfilial.toString().localeCompare('') == 0 ? null : cliente.idfilial)
@@ -237,7 +275,43 @@ function inserirClientes(req, res, next) {
                                 +","+(cliente.dtultimavisita == undefined || cliente.dtultimavisita.toString().localeCompare('') == 0 ? null : "'"+cliente.dtultimavisita+"'") 
                                 +","+(cliente.regimest == undefined || cliente.regimest.toString().localeCompare('') == 0 ? null : cliente.regimest)
                                 +",false" //Sempre false pois há um serviço que envia os clientes não enviados para o FTP a partir desta flag
-                                +"), ";
+                                +") ON CONFLICT ON CONSTRAINT clientes_pkey DO UPDATE SET "
+                                +(cliente.cdvendedor == undefined || cliente.cdvendedor.toString().localeCompare('') == 0 ? '' : "cdvendedor = " + cliente.cdvendedor+",")
+                                +(cliente.idfilial == undefined || cliente.idfilial.toString().localeCompare('') == 0 ? '' : "idfilial = "+cliente.idfilial+",")
+                                +(cliente.codigo == undefined || cliente.codigo.toString().localeCompare('') == 0 ? '' : "codigointerno = "+cliente.codigo+",")
+                                +(cliente.codigointerno == undefined || cliente.codigointerno.toString().localeCompare('') == 0 ? '' : "codigo = "+cliente.codigointerno+",")
+                                +(cliente.nome == undefined || cliente.nome.toString().localeCompare('') == 0 ? '' : "nome = '"+cliente.nome+"',") 
+                                +(cliente.fantasia == undefined || cliente.fantasia.toString().localeCompare('') == 0 ? '' : "fantasia = '"+cliente.fantasia+"',")
+                                +(cliente.endereco == undefined || cliente.endereco.toString().localeCompare('') == 0 ? '' : "endereco = '"+cliente.endereco+"',")
+                                +(cliente.numeroendereco == undefined || cliente.numeroendereco.toString().localeCompare('') == 0 ? '' : "numeroendereco = '"+cliente.numeroendereco+"',")
+                                +(cliente.complementoendereco == undefined || cliente.complementoendereco.toString().localeCompare('') == 0 ? '' : "complementoendereco = '"+cliente.complementoendereco+"',")
+                                +(cliente.bairro == undefined || cliente.bairro.toString().localeCompare('') == 0 ? '' : "bairro = '"+cliente.bairro+"',")
+                                +(cliente.cidade == undefined || cliente.cidade.toString().localeCompare('') == 0 ? '' : "cidade = '"+cliente.cidade+"',")
+                                +(cliente.uf == undefined || cliente.uf.toString().localeCompare('') == 0 ? '' : "uf = '"+cliente.uf+"',")
+                                +(cliente.cep == undefined || cliente.cep.toString().localeCompare('') == 0 ? '' : "cep = "+cliente.cep+",")
+                                +(cliente.cnpj == undefined || cliente.cnpj.toString().localeCompare('') == 0 ? '' : "cnpj = '"+cliente.cnpj+"',")
+                                +(cliente.inscrestadual == undefined || cliente.inscrestadual.toString().localeCompare('') == 0 ? '' : "inscrestadual = '"+cliente.inscrestadual+"',")
+                                +(cliente.fone == undefined || cliente.fone.toString().localeCompare('') == 0 ? '' : "fone = '"+cliente.fone+"',")
+                                +(cliente.celular == undefined || cliente.celular.toString().localeCompare('') == 0 ? '' : "celular = '"+cliente.celular+"',")
+                                +(cliente.fax == undefined || cliente.fax.toString().localeCompare('') == 0 ? '' : "fax = '"+cliente.fax+"',")
+                                +(cliente.contato == undefined || cliente.contato.toString().localeCompare('') == 0 ? '' : "contato = '"+cliente.contato+"',")
+                                +(cliente.contato2 == undefined || cliente.contato2.toString().localeCompare('') == 0 ? '' : "contato2 = '"+cliente.contato2+"',")
+                                +(cliente.email == undefined || cliente.email.toString().localeCompare('') == 0 ? '' : "email = '"+cliente.email+"',")
+                                +(cliente.tipopessoa == undefined || cliente.tipopessoa.toString().localeCompare('') == 0 ? '' : "tipopessoa = '"+cliente.tipopessoa+"',")
+                                +(cliente.regapuracao == undefined || cliente.regapuracao.toString().localeCompare('') == 0 ? '' : "regapuracao = "+cliente.regapuracao+",")
+                                +(cliente.limcred == undefined || cliente.limcred.toString().localeCompare('') == 0 ? 0 : "limcred = "+cliente.limcred.toString().split(',')[0]+",")
+                                +(cliente.situacao == undefined || cliente.situacao.toString().localeCompare('') == 0 ? '' : "situacao = "+cliente.situacao+",")
+                                +(cliente.possuiie == undefined || cliente.possuiie.toString().localeCompare('') == 0 ? '' : "possuiie = '"+cliente.possuiie+"',")
+                                +(cliente.liminarst == undefined || cliente.liminarst.toString().localeCompare('') == 0 ? '' : "liminarst = '"+cliente.liminarst+"',")
+                                +(cliente.idtipotabela == undefined || cliente.idtipotabela.toString().localeCompare('') == 0 ? '' : "idtipotabela = "+cliente.idtipotabela+",")
+                                +(cliente.suframa == undefined || cliente.suframa.toString().localeCompare('') == 0 ? '' : "suframa = '"+cliente.suframa+"',")
+                                +(cliente.email2 == undefined || cliente.email2.toString().localeCompare('') == 0 ? '' : "email2 = '"+cliente.email2+"',")
+                                +(cliente.email3 == undefined || cliente.email3.toString().localeCompare('') == 0 ? '' : "email3 = '"+cliente.email3+"',")
+                                +(cliente.dtultimavisita == undefined || cliente.dtultimavisita.toString().localeCompare('') == 0 ? '' : "dtultimavisita = '"+cliente.dtultimavisita+"',") 
+                                +(cliente.regimest == undefined || cliente.regimest.toString().localeCompare('') == 0 ? '' : "regimest = "+cliente.regimest+",");
+                                //+"enviadoftp = false"
+                                //+";";
+                                query_insert = query_insert.substring(0, query_insert.length-1)+";";
                 if(error > 0){
                     break;
                 }
@@ -250,7 +324,7 @@ function inserirClientes(req, res, next) {
                             message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
                         });
             }else{
-                query_insert = query_insert.substring(0, query_insert.length-2)+";";
+                //query_insert = query_insert.substring(0, query_insert.length-2)+";";
                 //console.log("Query: " + query_insert);
 
                 db.none(query_insert)
@@ -328,6 +402,7 @@ module.exports = {
     recuperarClientes: recuperarClientes,
     recuperarClientePorVendedor: recuperarClientePorVendedor,
     recuperarClientePorCodigoEVendedor: recuperarClientePorCodigoEVendedor,
+    recuperarClientePorCnpjEVendedor: recuperarClientePorCnpjEVendedor,
     recuperarCidadesPorPedidosPorCliente: recuperarCidadesPorPedidosPorCliente,
     deletarClientes: deletarClientes,
     deletarClientePorCodigo: deletarClientePorCodigo,

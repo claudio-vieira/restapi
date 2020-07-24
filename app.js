@@ -284,6 +284,7 @@ app.post('/api/deletarVendedorPorCodigo/', db_vendedores.deletarVendedorPorCodig
 app.post('/api/recuperarClientes', db_clientes.recuperarClientes);
 app.post('/api/recuperarClientePorVendedor/', db_clientes.recuperarClientePorVendedor);
 app.post('/api/recuperarClientePorCodigoEVendedor/', db_clientes.recuperarClientePorCodigoEVendedor);
+app.post('/api/recuperarClientePorCnpjEVendedor/', db_clientes.recuperarClientePorCnpjEVendedor);
 app.post('/api/recuperarCidadesPorPedidosPorCliente/', db_clientes.recuperarCidadesPorPedidosPorCliente);
 app.post('/api/deletarClientes/', db_clientes.deletarClientes);
 app.post('/api/deletarClientePorCodigo/', db_clientes.deletarClientePorCodigo);

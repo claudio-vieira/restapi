@@ -691,16 +691,25 @@ function inserirPedidos(req, res, next) {
         var pedido;
         
         console.log("Iniciou a insercao de pedidos");
-
-        var query_insert = "INSERT INTO pedidos(cdvendedor,idfilial,cdpedido,cdlocalfaturamento,cdcliente,dtpedido,totalvenda,"
-                            +"nupedidocliente,nunotafiscal,serienotafiscal,situacaonfe,dtemissaonota,dtsaidanota,valornota,"
-                            +"cdvenda,cdformapagamento,parcela1,parcela2,parcela3,parcela4,parcela5,parcela6,parcela7,parcela8,parcela9,situacao,"
-                            +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
-                            +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
-    	    +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, motivousogordurasupervisor) VALUES ";
+        var query_insert = "";
+        // var query_insert = "INSERT INTO pedidos(cdvendedor,idfilial,cdpedido,cdlocalfaturamento,cdcliente,dtpedido,totalvenda,"
+        //                     +"nupedidocliente,nunotafiscal,serienotafiscal,situacaonfe,dtemissaonota,dtsaidanota,valornota,"
+        //                     +"cdvenda,cdformapagamento,parcela1,parcela2,parcela3,parcela4,parcela5,parcela6,parcela7,parcela8,parcela9,situacao,"
+        //                     +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
+        //                     +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
+    	//     +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, motivousogordurasupervisor) VALUES ";
         
         for (i in req.body) {
             pedido = req.body[i];
+
+            query_insert = "INSERT INTO pedidos(cdvendedor,idfilial,cdpedido,cdlocalfaturamento,cdcliente,dtpedido,totalvenda,"
+                +"nupedidocliente,nunotafiscal,serienotafiscal,situacaonfe,dtemissaonota,dtsaidanota,valornota,"
+                +"cdvenda,cdformapagamento,parcela1,parcela2,parcela3,parcela4,parcela5,parcela6,parcela7,parcela8,parcela9,situacao,"
+                +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
+                +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
+                +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, motivousogordurasupervisor) VALUES ";
+
+
             query_insert += "("+ (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? null : pedido.cdvendedor)
                             +","+ (pedido.idfilial == undefined || pedido.idfilial.toString().localeCompare('') == 0 ? null : pedido.idfilial)
                             +","+ (pedido.cdpedido == undefined || pedido.cdpedido.toString().localeCompare('') == 0 ? null : pedido.cdpedido);
@@ -756,11 +765,64 @@ function inserirPedidos(req, res, next) {
                     	    +","+ (pedido.totalvolume == undefined || pedido.totalvolume.toString().localeCompare('') == 0 ? null : pedido.totalvolume)
                     	    +","+ (pedido.totalprodutos == undefined || pedido.totalprodutos.toString().localeCompare('') == 0 ? null : pedido.totalprodutos)
                     	    +","+ (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? null : "'"+pedido.motivousogordurasupervisor+"'")
-                            +"), "; 
+                            +") ON CONFLICT ON CONSTRAINT pedidos_pkey DO UPDATE SET "
+                            + (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? '' : "cdvendedor = "+pedido.cdvendedor+",")
+                            + (pedido.idfilial == undefined || pedido.idfilial.toString().localeCompare('') == 0 ? '' : "idfilial = "+pedido.idfilial+",")
+                            + (pedido.cdpedido == undefined || pedido.cdpedido.toString().localeCompare('') == 0 ? '' : "cdpedido = "+pedido.cdpedido+",")
+                            + (pedido.cdlocalfaturamento == undefined || pedido.cdlocalfaturamento.toString().localeCompare('') == 0 ? '' : "cdlocalfaturamento = "+pedido.cdlocalfaturamento+",")
+                            + (pedido.cdcliente == undefined || pedido.cdcliente.toString().localeCompare('') == 0 ? '' : "cdcliente = "+pedido.cdcliente+",")
+                            + (pedido.dtpedido == undefined || pedido.dtpedido.toString().localeCompare('') == 0 ? '' :  "dtpedido = '"+pedido.dtpedido.substring(0,10)+"',")
+                            + (pedido.totalvenda == undefined || pedido.totalvenda.toString().localeCompare('') == 0 ? '' : "totalvenda = "+pedido.totalvenda.toString().replace(/,/, '.')+",")
+                            + (pedido.nupedidocliente == undefined || pedido.nupedidocliente.toString().localeCompare('') == 0 ? '' : "nupedidocliente = "+pedido.nupedidocliente+",")
+                            + (pedido.nunotafiscal == undefined || pedido.nunotafiscal.toString().localeCompare('') == 0 ? '' : "nunotafiscal = "+pedido.nunotafiscal+",")
+                            + (pedido.serienotafiscal == undefined || pedido.serienotafiscal.toString().localeCompare('') == 0 ? '' : "serienotafiscal = '"+pedido.serienotafiscal+"',")
+                            + (pedido.situacaonfe == undefined || pedido.situacaonfe.toString().localeCompare('') == 0 ? '' : "situacaonfe = "+pedido.situacaonfe+",")
+                            + (pedido.dtemissaonota == undefined || pedido.dtemissaonota.toString().localeCompare('') == 0 ? '' : "dtemissaonota = '"+utils.convertDataDDMMYYYY(pedido.dtemissaonota)+"',")
+                            + (pedido.dtsaidanota == undefined || pedido.dtsaidanota.toString().localeCompare('') == 0 ? '' : "dtsaidanota = '"+utils.convertDataDDMMYYYY(pedido.dtsaidanota)+"',")
+                            + (pedido.valornota == undefined || pedido.valornota.toString().localeCompare('') == 0 ? '' : "valornota = "+pedido.valornota.toString().replace(/,/, '.')+",")
+                            + (pedido.cdvenda == undefined || pedido.cdvenda.toString().localeCompare('') == 0 ? '' : "cdvenda = '"+pedido.cdvenda+"',")
+                            + (pedido.cdformapagamento == undefined || pedido.cdformapagamento.toString().localeCompare('') == 0 ? '' : "cdformapagamento = "+pedido.cdformapagamento+",")
+                            + (pedido.parcela1 == undefined || pedido.parcela1.toString().localeCompare('') == 0 ? '' : "parcela1 = "+pedido.parcela1+",")
+                            + (pedido.parcela2 == undefined || pedido.parcela2.toString().localeCompare('') == 0 ? '' : "parcela2 = "+pedido.parcela2+",")
+                            + (pedido.parcela3 == undefined || pedido.parcela3.toString().localeCompare('') == 0 ? '' : "parcela3 = "+pedido.parcela3+",")
+                            + (pedido.parcela4 == undefined || pedido.parcela4.toString().localeCompare('') == 0 ? '' : "parcela4 = "+pedido.parcela4+",")
+                            + (pedido.parcela5 == undefined || pedido.parcela5.toString().localeCompare('') == 0 ? '' : "parcela5 = "+pedido.parcela5+",")
+                            + (pedido.parcela6 == undefined || pedido.parcela6.toString().localeCompare('') == 0 ? '' : "parcela6 = "+pedido.parcela6+",")
+                            + (pedido.parcela7 == undefined || pedido.parcela7.toString().localeCompare('') == 0 ? '' : "parcela7 = "+pedido.parcela7+",")
+                            + (pedido.parcela8 == undefined || pedido.parcela8.toString().localeCompare('') == 0 ? '' : "parcela8 = "+pedido.parcela8+",")
+                            + (pedido.parcela9 == undefined || pedido.parcela9.toString().localeCompare('') == 0 ? '' : "parcela9 = "+pedido.parcela9+",")
+                            + (pedido.situacao == undefined || pedido.situacao.toString().localeCompare('') == 0 ? '' : "situacao = "+pedido.situacao+",")
+                            + (pedido.cnpjcliente == undefined || pedido.cnpjcliente.toString().localeCompare('') == 0 ? '' : "cnpjcliente = '"+pedido.cnpjcliente+"',")
+                            + (pedido.cdclienteapk == undefined || pedido.cdclienteapk.toString().localeCompare('') == 0 ? '' : "cdclienteapk = "+pedido.cdclienteapk+",")
+                            + (pedido.tipotabela == undefined || pedido.tipotabela.toString().localeCompare('') == 0 ? '' : "tipotabela = "+pedido.tipotabela+",")
+                            + (pedido.cdcobranca == undefined || pedido.cdcobranca.toString().localeCompare('') == 0 ? '' : "cdcobranca = "+pedido.cdcobranca+",")
+                            + (pedido.dtentrega == undefined || pedido.dtentrega.toString().localeCompare('') == 0 ? '' : "dtentrega = '"+utils.convertDataDDMMYYYYSplitBar(pedido.dtentrega)+"',")
+                            + (pedido.hrpedido == undefined || pedido.hrpedido.toString().localeCompare('') == 0 ? '' : "hrpedido = '"+pedido.hrpedido+"',")
+                            + (pedido.totaltabela == undefined || pedido.totaltabela.toString().localeCompare('') == 0 ? '' : "totaltabela = "+pedido.totaltabela+",")
+                            + (pedido.totaldesconto == undefined || pedido.totaldesconto.toString().localeCompare('') == 0 ? '' : "totaldesconto = "+pedido.totaldesconto+",")
+                            + (pedido.bensuframa == undefined || pedido.bensuframa.toString().localeCompare('') == 0 ? '' : "bensuframa = "+pedido.bensuframa+",")
+                            + (pedido.ordem == undefined || pedido.ordem.toString().localeCompare('') == 0 ? '' : "ordem = '"+pedido.ordem+"',")
+                            + (pedido.observacao == undefined || pedido.observacao.toString().localeCompare('') == 0 ? '' : "observacao = '"+pedido.observacao+"',")
+                            + (pedido.gordurausada == undefined || pedido.gordurausada.toString().localeCompare('') == 0 ? '' : "gordurausada = "+pedido.gordurausada+",")
+                            + (pedido.gorduragerada == undefined || pedido.gorduragerada.toString().localeCompare('') == 0 ? '' : "gorduragerada = "+pedido.gorduragerada+",")
+                            + (pedido.motivousogordura == undefined || pedido.motivousogordura.toString().localeCompare('') == 0 ? '' : "motivousogordura = '"+pedido.motivousogordura+"',")
+                            + (pedido.cdmotivogordura == undefined || pedido.cdmotivogordura.toString().localeCompare('') == 0 ? '' : "cdmotivogordura = "+pedido.cdmotivogordura+",")
+                            + "enviadoftp = false," //Sempre false pois há um serviço que envia os pedidos não enviados para o FTP a partir desta flag
+                            + (pedido.pendente == undefined || pedido.pendente.toString().localeCompare('') == 0 ? 0 : "pendente = "+pedido.pendente+",")
+                            + (pedido.gorduraliberarsupervisor == undefined || pedido.gorduraliberarsupervisor.toString().localeCompare('') == 0 ? '' : "gorduraliberarsupervisor = "+pedido.gorduraliberarsupervisor+",")
+                            + (pedido.cdsupervisor == undefined || pedido.cdsupervisor.toString().localeCompare('') == 0 ? '' : "cdsupervisor = "+pedido.cdsupervisor+",")
+                		    + (pedido.st == undefined || pedido.st.toString().localeCompare('') == 0 ? '' : "st = "+pedido.st+",")
+                    	    + (pedido.pesoliquidototal == undefined || pedido.pesoliquidototal.toString().localeCompare('') == 0 ? '' : "pesoliquidototal = "+pedido.pesoliquidototal+",")
+                       	    + (pedido.pesobrutototal == undefined || pedido.pesobrutototal.toString().localeCompare('') == 0 ? '' : "pesobrutototal = "+pedido.pesobrutototal+",")
+                    	    + (pedido.valorreferenciatotal == undefined || pedido.valorreferenciatotal.toString().localeCompare('') == 0 ? '' : "valorreferenciatotal = "+pedido.valorreferenciatotal+",")
+                    	    + (pedido.totalvolume == undefined || pedido.totalvolume.toString().localeCompare('') == 0 ? '' : "totalvolume = "+pedido.totalvolume+",")
+                    	    + (pedido.totalprodutos == undefined || pedido.totalprodutos.toString().localeCompare('') == 0 ? '' : "totalprodutos = "+pedido.totalprodutos+",")
+                            + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',");
+                            
+                            query_insert = query_insert.substring(0, query_insert.length-1)+";";
         }
         
-        query_insert = query_insert.substring(0, query_insert.length-2)+";";
-        //console.log("Query: "+ query_insert);
+        console.log("Query: "+ query_insert);
 
         db.none(query_insert)
         .then(function () {
