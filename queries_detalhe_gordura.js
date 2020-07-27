@@ -141,6 +141,11 @@ function inserirDetalheGordura(req, res, next) {
                 //console.log("query: " + query_insert_saldo);
                 db.none(query_insert_saldo)
                 .then(function () {
+			 res.status(200)
+                    .json({
+                        status: 'success',
+                        message: 'updated detalhes gordura'
+                    });
 
                 })
                 .catch(function (err) {
