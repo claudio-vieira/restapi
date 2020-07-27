@@ -24,7 +24,7 @@ function recuperarDetalheGordura(req, res, next) {
         res.status(400)
                 .json({
                     status: 'Warning',
-                    data_detalhe_gordura: 'Não existem detalher da gordura cadastrados ou houve algum problema',
+                    data_detalhe_gordura: 'Nï¿½o existem detalher da gordura cadastrados ou houve algum problema',
                     message: 'Erro: '+err
                 });
     });
@@ -53,7 +53,7 @@ function recuperarDetalheGorduraPorVendedor(req, res, next) {
         res.status(400)
                 .json({
                     status: 'Warning',
-                    data_detalhe_gordura: 'Não existe o detalhes da gordura ou houve algum problema',
+                    data_detalhe_gordura: 'Nï¿½o existe o detalhes da gordura ou houve algum problema',
                     message: 'Erro: '+err
                 });
     });
@@ -75,19 +75,28 @@ function retornaTabelaParaValidacao(nomeTabela){
 
 function inserirDetalheGordura(req, res, next) {
     var detalheGordura;
-    var query_insert = "INSERT INTO detalhe_gordura(cdvendedor,nunotafiscal,addgordura,subgordura) VALUES ";
+    var query_insert = "";
+    //var query_insert = "INSERT INTO detalhe_gordura(cdvendedor,nunotafiscal,addgordura,subgordura) VALUES ";
     var saldoPorVendedor = [];
 
     //Percorre os detalheGordura para salvar
     for (i in req.body) {
         detalheGordura = req.body[i];
 
+        query_insert += "INSERT INTO detalhe_gordura(cdvendedor,nunotafiscal,addgordura,subgordura) VALUES ";
 
         query_insert += "("+ (detalheGordura.cdvendedor == 0 ? null : detalheGordura.cdvendedor)
                         +","+(detalheGordura.nunotafiscal == 0 ? null : detalheGordura.nunotafiscal)
                         +","+(detalheGordura.addgordura == 0 ? null : detalheGordura.addgordura.toString().replace(/,/, '.'))
                         +","+ (detalheGordura.subgordura == 0 ? null : detalheGordura.subgordura.toString().replace(/,/, '.'))
-                        +"), ";
+                        +") ON CONFLICT ON CONSTRAINT detalhe_gordura_pkey DO UPDATE SET "
+                        + (detalheGordura.cdvendedor == undefined || detalheGordura.cdvendedor == 0 ? '' : "cdvendedor = " + detalheGordura.cdvendedor+",")
+                        + (detalheGordura.nunotafiscal == undefined || detalheGordura.nunotafiscal == 0 ? '' : "nunotafiscal = " + detalheGordura.nunotafiscal+",")
+                        + (detalheGordura.addgordura == undefined || detalheGordura.addgordura == 0 ? '' : "addgordura = " + detalheGordura.addgordura.toString().replace(/,/, '.')+",")
+                        + (detalheGordura.subgordura == undefined || detalheGordura.subgordura == 0 ? '' : "subgordura = " + detalheGordura.subgordura.toString().replace(/,/, '.')+",");
+        
+        query_insert = query_insert.substring(0, query_insert.length-1)+";";
+
         var valor = (parseFloat(detalheGordura.addgordura.toString().replace(/,/, '.')) + (-parseFloat(detalheGordura.subgordura.toString().replace(/,/, '.'))));
         //Alredy object in vector 
         /*if(saldoPorVendedor.some(saldo => saldo.cdvendedor === detalheGordura.cdvendedor)){
@@ -118,7 +127,7 @@ function inserirDetalheGordura(req, res, next) {
         }
     }
 
-    query_insert = query_insert.substring(0, query_insert.length-2)+";";
+    //query_insert = query_insert.substring(0, query_insert.length-2)+";";
     //console.log("query: " + query_insert);
     db.none(query_insert)
         .then(function () {
@@ -128,7 +137,7 @@ function inserirDetalheGordura(req, res, next) {
 
                 //console.log(saldoPorVendedor);
                 var query_insert_saldo;
-                //Monta a estrutura de atualização dos saldos
+                //Monta a estrutura de atualizaï¿½ï¿½o dos saldos
                 for(var i=0; i < saldoPorVendedor.length; i++){
                     query_insert_saldo = "UPDATE saldo_gordura SET ";
                     for(var j=0; j < resSaldoGordura.length; j++){
