@@ -407,6 +407,161 @@ function recuperarPedidosPorCliente(req, res, next) {
     });
 }
 
+function recuperarUltimoPedidoPorCodigoClienteHistorico(req, res, next) {
+    const param = req.body;
+
+    var fVendedor = '';
+    var fSupervisor = '';
+    var fCdcliente = '';
+    var fCdpedido = '';
+    
+    if(param.cdvendedor !== undefined && param.cdvendedor != ''){
+        fVendedor = ' and vendedores.codigo = '+parseInt(param.cdvendedor);
+    }else{
+        return res.status(401).json({error: '(cdvendedor) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+
+    if(param.cdsupervisor !== undefined && param.cdsupervisor != ''){
+        fSupervisor = ' and supervisores.codigo = '+parseInt(param.cdsupervisor);
+    }else{
+       return res.status(401).json({error: '(cdsupervisor) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+
+    if(param.cdcliente !== undefined && param.cdcliente != ''){
+        fCdcliente = ' and pedidos.cdcliente = '+parseInt(param.cdcliente);
+    }else{
+        return res.status(401).json({error: '(cdcliente) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+
+    if(param.cdpedido !== undefined && param.cdpedido != ''){
+        fCdpedido = ' and pedidos.cdpedido < '+parseInt(param.cdpedido);
+    }else{
+        return res.status(401).json({error: '(cdpedido) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+
+    db.one('SELECT                                                                          '+
+    ' pedidos.cdvendedor,                                                                   '+
+    ' pedidos.cdpreposto,                                                                   '+
+    ' pedidos.cdpedido,                                                                     '+
+    ' pedidos.idfilial,                                                                     '+
+    ' pedidos.cdlocalfaturamento,                                                           '+
+    ' pedidos.cdcliente,                                                                    '+
+    ' pedidos.cdclienteapk,                                                                 '+
+    ' pedidos.cnpj,                                                                         '+
+    ' pedidos.tipotabela,                                                                   '+
+    ' pedidos.cdcobranca,                                                                   '+
+    ' pedidos.cdvenda,                                                                      '+
+    ' pedidos.dtpedido,                                                                     '+
+    ' pedidos.dtentrega,                                                                    '+
+    ' pedidos.hrpedido,                                                                     '+
+    ' pedidos.cdformapagamento,                                                             '+
+    ' pedidos.parcela1,                                                                     '+
+    ' pedidos.parcela2,                                                                     '+
+    ' pedidos.parcela3,                                                                     '+
+    ' pedidos.parcela4,                                                                     '+
+    ' pedidos.parcela5,                                                                     '+
+    ' pedidos.parcela6,                                                                     '+
+    ' pedidos.parcela7,                                                                     '+
+    ' pedidos.parcela8,                                                                     '+
+    ' pedidos.parcela9,                                                                     '+
+    ' pedidos.cnpjcliente,                                                                  '+
+    ' cast(round(cast( case when pedidos.totaltabela is not null then pedidos.totaltabela else 0 end as numeric),2) as double precision) as "totaltabela",  		'+                                                                
+    ' cast(round(cast( case when pedidos.totalvenda is not null then pedidos.totalvenda else 0 end as numeric),2) as double precision) as "totalvenda",           '+                                                        
+    ' cast(round(cast( case when pedidos.totaldesconto is not null then pedidos.totaldesconto else 0 end as numeric),2) as double precision) as "totaldesconto",  '+                                                                  ' pedidos.bensuframa,                                                                   '+
+    ' pedidos.ordem,                                                                        '+
+    ' pedidos.observacao,                                                                   '+
+    ' pedidos.nupedidocliente,                                                              '+
+    ' pedidos.nunotafiscal,                                                                 '+
+    ' pedidos.serienotafiscal,                                                              '+
+    ' pedidos.situacaonfe,                                                                  '+
+    ' pedidos.dtemissaonota,                                                                '+
+    ' pedidos.dtsaidanota,                                                                  '+
+    ' pedidos.valornota,                                                                    '+
+    ' pedidos.situacao,                                                                     '+
+    ' cast(round(cast( case when pedidos.gordurausada is not null then pedidos.gordurausada else 0 end as numeric),2) as double precision) as "gordurausada",     '+                                                         
+    ' cast(round(cast( case when pedidos.gorduragerada is not null then pedidos.gorduragerada else 0 end as numeric),2) as double precision) as "gorduragerada",  '+                                                             ' pedidos.motivousogordura,                                                             '+
+    ' pedidos.cdmotivogordura,                                                              '+
+    ' cast(round(cast( case when pedidos.gorduraliberarsupervisor is not null then pedidos.gorduraliberarsupervisor else 0 end as numeric),2) as double precision) as "valalorPendenteGordura",          '+
+    ' pedidos.pendente,                                                 '+
+   '  cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st", 										                        '+
+    ' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",          			'+
+    ' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",            				'+
+    ' cast(round(cast( case when pedidos.valorreferenciatotal is not null then pedidos.valorreferenciatotal else 0 end as numeric),2) as double precision) as "valorreferenciatotal",      	'+
+    ' cast( case when pedidos.totalvolume is not null then pedidos.totalvolume else 0 end as numeric) as "totalvolume",               							    '+
+    ' cast( case when pedidos.totalprodutos is not null then pedidos.totalprodutos else 0 end as numeric) as "totalprodutos",            							'+
+    ' forma_pagamento.codigo as "codigoFormaPagamento",                 '+
+    ' forma_pagamento.descricao as "tipoPagamento",                     '+
+    ' vendedores.codigo as "vendedorCodigo",                                               '+
+    ' vendedores.nome as "vendedorNome",                                                   '+
+    ' vendedores.endereco as "vendedorEndereco",                                           '+
+    ' vendedores.municipio as "vendedorMunicipio",                                         '+
+    ' vendedores.bairro as "vendedorBairro",                                               '+
+    ' vendedores.uf as "vendedorUf",                                                       '+
+    ' vendedores.telefone as "vendedorTelefone",                                           '+
+    ' vendedores.celular as "vendedorCelular",                                             '+
+    ' vendedores.email as "vendedorEmail",                                                 '+
+    ' vendedores.idtabelapreco as "vendedorIdtabelapreco",                                 '+
+    ' vendedores.nuultimopedido as "vendedorNuUltimopedido",                               '+
+    ' vendedores.precoliberado as "vendedorPrecoliberado",                                 '+
+    ' vendedores.descminmax as "vendedorDescminmax",                                       '+
+    ' vendedores.descavista as "vendedorDescavista",                                       '+
+    ' vendedores.nudiasdescavista as "vendedorNudiasdescavista",                           '+
+    ' vendedores.permiteusargordura as "vendedorPermiteusargordura",                       '+
+    ' vendedores.reiniciadados as "vendedorReiniciadados",                                 '+
+    ' vendedores.descintermediario as "vendedorDescintermediario",                          '+
+    ' clientes.codigo                as  "clienteCodigo",                                  '+
+    ' clientes.codigointerno         as  "clienteCodigointerno",                            '+
+    ' clientes.nome                  as  "clienteNome",                                     '+
+    ' clientes.fantasia              as  "clienteFantasia",                                 '+
+    ' clientes.endereco              as  "clienteEndereco",                                 '+
+    ' clientes.numeroendereco        as  "clienteNumeroendereco",                           '+
+    ' clientes.complementoendereco   as  "clienteComplementoendereco",                      '+
+    ' clientes.bairro                as  "clienteBairro",                                   '+
+    ' clientes.uf                    as  "clienteUf",                                       '+
+    ' clientes.cep                 as  "clienteCep",                                        '+
+    ' clientes.cidade                as  "clienteCidade",                                   '+
+    ' clientes.cnpj                  as  "clienteCnpj",                                     '+
+    ' clientes.inscrestadual         as  "clienteInscrestadual",                            '+
+    ' clientes.fone                    as  "clienteFone",                                   '+
+    ' clientes.celular               as  "clienteCelular",                                  '+
+    ' \'false\'                      as "expanded"                                          '+
+   ' FROM pedidos                                                                           '+
+   ' inner join vendedores on vendedores.codigo = pedidos.cdvendedor                        '+
+   ' inner join supervisionados on supervisionados.cdvendedor = vendedores.codigo           '+
+   ' inner join supervisores on supervisores.codigo = supervisionados.cdsupervisor          '+
+   ' inner join clientes on clientes.codigo = pedidos.cdcliente          '+
+    ' left join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
+
+           ' WHERE 1=1 '+fVendedor+fSupervisor+fCdcliente+fCdpedido+
+           ' and pedidos.nunotafiscal IS NOT NULL and pedidos.nunotafiscal > 0'+
+           ' ORDER BY pedidos.dtpedido DESC limit 1') 
+         .then(function (data) {
+
+            return res.status(200)
+                .json({
+                    status: 'success',
+                    data_pedidos: data,
+                    message: 'Retrieved ONE pedido'
+                });
+        }).catch(function (err) {
+        //return next(err);
+            if(err.message === 'No data returned from the query.'){
+                return res.status(204)
+                .json({
+                    status: 'Warning',
+                    data_pedidos: 'No data returned from the query',
+                    message: 'Verifique se os parametros estão corretos e tente novamente.'
+                });
+            }else{
+                return res.status(401)
+                .json({
+                    status: 'Warning',
+                    data_pedidos: 'Nao existe o pedido ou houve algum problema',
+                    message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
+                });
+            }           
+    });
+}
 
 function recuperarPedidosPorFiltros(req, res, next) {
     var representante = req.body.representante;
@@ -915,6 +1070,7 @@ module.exports = {
     recuperarPedidosPorCodigoEVendedor: recuperarPedidosPorCodigoEVendedor,
     recuperarPedidosPendentesSupervisor: recuperarPedidosPendentesSupervisor,
     recuperarUltimoPedidoPorCodigoCliente: recuperarUltimoPedidoPorCodigoCliente,
+    recuperarUltimoPedidoPorCodigoClienteHistorico: recuperarUltimoPedidoPorCodigoClienteHistorico,
     recuperarPedidosPorCliente: recuperarPedidosPorCliente,
     recuperarPedidosPorFiltros: recuperarPedidosPorFiltros,
     inserirPedidos: inserirPedidos,

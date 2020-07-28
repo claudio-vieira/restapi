@@ -261,6 +261,7 @@ app.post('/api/recuperarPedidosPorVendedor', db_pedidos.recuperarPedidosPorVende
 app.post('/api/recuperarPedidosPorCodigoEVendedor', db_pedidos.recuperarPedidosPorCodigoEVendedor);
 app.post('/api/recuperarPedidosPendentesSupervisor', db_pedidos.recuperarPedidosPendentesSupervisor);
 app.post('/api/recuperarUltimoPedidoPorCodigoCliente', db_pedidos.recuperarUltimoPedidoPorCodigoCliente);
+app.post('/api/recuperarUltimoPedidoPorCodigoClienteHistorico', db_pedidos.recuperarUltimoPedidoPorCodigoClienteHistorico);
 app.post('/api/recuperarPedidosPorCliente', db_pedidos.recuperarPedidosPorCliente);
 app.post('/api/recuperarPedidosPorFiltros', db_pedidos.recuperarPedidosPorFiltros);
 app.post('/api/inserirPedidos', db_pedidos.inserirPedidos);
