@@ -41,6 +41,12 @@ var ftp_checar_arquivo = new jsftp({
     pass: "Integra@01" // defaults to "@anonymous"
   });
 
+var ftp_move_file = new jsftp({
+    host: "54.94.243.33",
+    port: 21, // defaults to 21
+    user: "liane", // defaults to "anonymous"
+    pass: "Integra@01" // defaults to "@anonymous"
+  });
 // Download the Node helper library from twilio.com/docs/node/install
 // These are your accountSid and authToken from https://www.twilio.com/console
 //const accountSid = "ACf6fcbadfd25f42a64b4c66e89bf0b217";
@@ -307,7 +313,7 @@ async function enviaPedidos(strPedido, strPedidoItem, pedidos){
 	var d = new Date();
 	var nome = "Pedidos_" + dateFormat(d, "yyyymmddHHMMss") + ".txt";
 
-    await ftp_pedido.put(buffer, "upload/"+nome, err => {
+    await ftp_pedido.put(buffer, "upload_tmp/pedidos/"+"copy_"+nome, err => {
       if (!err) {
         console.log("Pedidos gravados na pasta temporaria!");
       }else{
@@ -349,6 +355,12 @@ async function enviaPedidos(strPedido, strPedidoItem, pedidos){
                         }
                     }
                 }
+                
+                ftp_move_file.rename("upload_tmp/pedidos/"+nome, "upload/"+nome, (err, res) => {
+                    if (!err) {
+                        console.log("Renaming successful!");
+                    }
+                });
 
                 if(pedidos_enviados.length > 0) setaPedidosEnviados(pedidos_enviados);
             });
@@ -365,9 +377,8 @@ async function enviaPedidos(strPedido, strPedidoItem, pedidos){
 	  }else{
 	  	console.log("Error_pedido_tmp: "+err);
 	  }
-	});
-
-	return "teste";
+    });
+    
 }
 
 async function enviaClientes(strCliente, clientes){
