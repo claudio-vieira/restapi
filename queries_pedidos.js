@@ -1,6 +1,5 @@
 var db = require('./conexao').getDb();
 var utils = require('./utils');
-var testeGlobal;
 
 function recuperarPedidos(req, res, next) {
     db.any('select * from pedidos')
