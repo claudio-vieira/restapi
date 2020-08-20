@@ -67,7 +67,7 @@ function recuperarSupervisorPorCodigoGorduraAnoMes(req, res, next) {
         return res.status(401).json({error: 'Obrigatorio o parametro (codigo) e (anomes) no corpo da requisicao'});
     }
 
-    //Query retorna os campos do supervisor mais a quantidade de gordura usada por ele no mês atual
+    //Query retorna os campos do supervisor mais a quantidade de gordura usada por ele no mï¿½s atual
     sql = "SELECT s.*, "+
         "coalesce((select sum(gorduraliberada) from pedidos_aprovados where cdsupervisor = "+codigo+" and dataliberada like '"+anomes+"'), 0) as saldoGorduraUsado, "+
         "coalesce((select valorgordura from saldo_gordura_sup where cdsupervisor = "+codigo+" and validadegordura like '"+anomes+"'), 0) as saldoGorduraInicio "+
@@ -75,7 +75,7 @@ function recuperarSupervisorPorCodigoGorduraAnoMes(req, res, next) {
         "LEFT JOIN pedidos_aprovados p on cdsupervisor = s.codigo "+
         "WHERE s.codigo = "+codigo+" group by s.codigo";
 
-    console.log(sql);
+    //console.log(sql);
     db.one(sql)
         .then(function (data) {
             var items = Object.keys(data);
@@ -107,7 +107,7 @@ function recuperarSupervisorParaLogin(req, res, next) {
         login = parseInt(param.login);
         senha = parseInt(param.senha);
     }else{
-        return res.status(401).json({error: 'É obrigatório o parâmetro (login) e (senha) no corpo da requisição'});
+        return res.status(401).json({error: 'ï¿½ obrigatï¿½rio o parï¿½metro (login) e (senha) no corpo da requisiï¿½ï¿½o'});
     }
 
     db.one('SELECT * FROM supervisores WHERE codigo = $1 and codigo = $2 ', [login,senha])

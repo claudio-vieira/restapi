@@ -285,7 +285,8 @@ function atualizarVendedor(req, res, next){
         return res.status(400).json({error: '(codigo) obrigatorio no corpo da requisicao'});
     }
 	
-	db.any("update vendedores set nuultimopedido = "+param.nuultimopedido+" where codigo = "+param.codigo)
+    db.any("update vendedores set nuultimopedido = "+param.nuultimopedido+" where codigo = "+param.codigo+
+        " and "+param.nuultimopedido+" > (select nuultimopedido from vendedores where codigo = "+param.codigo+")")
 		.then(data =>  {
 	        // success
 	        // data = as returned from the task's callback
