@@ -856,7 +856,7 @@ function inserirPedidos(req, res, next) {
         for (i in req.body) {
             pedido = req.body[i];
 
-            query_insert = "INSERT INTO pedidos(cdvendedor,idfilial,cdpedido,cdlocalfaturamento,cdcliente,dtpedido,totalvenda,"
+            query_insert += "INSERT INTO pedidos(cdvendedor,idfilial,cdpedido,cdlocalfaturamento,cdcliente,dtpedido,totalvenda,"
                 +"nupedidocliente,nunotafiscal,serienotafiscal,situacaonfe,dtemissaonota,dtsaidanota,valornota,"
                 +"cdvenda,cdformapagamento,parcela1,parcela2,parcela3,parcela4,parcela5,parcela6,parcela7,parcela8,parcela9,situacao,"
                 +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
