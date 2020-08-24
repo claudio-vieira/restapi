@@ -155,7 +155,7 @@ function recuperarUltimoPedidoPorCodigoCliente(req, res, next) {
    ' inner join vendedores on vendedores.codigo = pedidos.cdvendedor                        '+
    ' inner join supervisionados on supervisionados.cdvendedor = vendedores.codigo           '+
    ' inner join supervisores on supervisores.codigo = supervisionados.cdsupervisor          '+
-   ' inner join clientes on clientes.codigo = pedidos.cdcliente          '+
+   ' inner join clientes on clientes.codigo = pedidos.cdcliente  and clientes.cdvendedor = vendedores.codigo         '+
     ' inner join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
 
            ' WHERE 1=1 '+fVendedor+fSupervisor+cdcliente+
@@ -302,7 +302,7 @@ function recuperarPedidosPendentesSupervisor(req, res, next) {
     ' \'false\'                      as "expanded"                                          '+
    ' FROM pedidos                                                                           '+ 
    ' inner join vendedores on vendedores.codigo = pedidos.cdvendedor                        '+
-   ' inner join clientes on clientes.codigo = pedidos.cdcliente          '+
+   ' inner join clientes on clientes.codigo = pedidos.cdcliente  and clientes.cdvendedor = vendedores.codigo         '+
    ' inner join tipo_tabela on tipo_tabela.codigo = pedidos.tipotabela and tipo_tabela.cdvendedor = vendedores.codigo    '+
    ' inner join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
    ' left join historico_gordura on historico_gordura.codigo = pedidos.cdmotivogordura          '+
@@ -528,7 +528,7 @@ function recuperarUltimoPedidoPorCodigoClienteHistorico(req, res, next) {
    ' inner join vendedores on vendedores.codigo = pedidos.cdvendedor                        '+
    ' inner join supervisionados on supervisionados.cdvendedor = vendedores.codigo           '+
    ' inner join supervisores on supervisores.codigo = supervisionados.cdsupervisor          '+
-   ' inner join clientes on clientes.codigo = pedidos.cdcliente          '+
+   ' inner join clientes on clientes.codigo = pedidos.cdcliente  and clientes.cdvendedor = vendedores.codigo         '+
     ' left join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
 
            ' WHERE 1=1 '+fVendedor+fSupervisor+fCdcliente+fCdpedido+
@@ -673,8 +673,8 @@ function recuperarPedidosPorFiltros(req, res, next) {
             ' clientes.celular               as  "clienteCelular",                                  '+
             ' \'false\'                      as "expanded"                                          '+
             'FROM pedidos '+
-            'INNER JOIN clientes on clientes.codigo = pedidos.cdcliente  '+
             'INNER JOIN vendedores on vendedores.codigo = pedidos.cdvendedor  '+
+            'INNER JOIN clientes on clientes.codigo = pedidos.cdcliente  and clientes.cdvendedor = vendedores.codigo '+
             'INNER JOIN supervisionados on supervisionados.cdvendedor = vendedores.codigo '+
             'LEFT JOIN tipo_tabela on tipo_tabela.codigo = pedidos.tipotabela and tipo_tabela.cdvendedor = vendedores.codigo    '+
             'WHERE supervisionados.cdsupervisor = '+cdsupervisor+' '+
