@@ -158,7 +158,7 @@ function recuperarItensPorPedido(req, res, next) {
     ' FROM itens_pedido                                                                           	'+
     ' inner join produtos on produtos.codigo = itens_pedido.cdproduto                        		'+
     ' inner join pedidos on pedidos.cdpedido = itens_pedido.cdpedido                        		'+
-    ' left join clientes on clientes.codigo = pedidos.cdcliente                                     '+
+    ' left join clientes on clientes.codigo = pedidos.cdcliente and clientes.cdvendedor = itens_pedido.cdvendedor                                    '+
                ' WHERE 1=1 '+
                ' and itens_pedido.cdpedido = '+codigo+
                ' and itens_pedido.cdvendedor = '+cdvendedor+
@@ -178,7 +178,7 @@ function recuperarItensPorPedido(req, res, next) {
         res.status(400)
                 .json({
                     status: 'Warning',
-                    data_itens: 'Não existe o item ou houve algum problema',
+                    data_itens: 'Nï¿½o existe o item ou houve algum problema',
                     message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
                 });
     });
@@ -261,7 +261,7 @@ function recuperarItensPorIdsPedidos(req, res, next) {
         res.status(400)
                 .json({
                     status: 'Warning',
-                    data_itens: 'Não existe o item ou houve algum problema',
+                    data_itens: 'Nï¿½o existe o item ou houve algum problema',
                     message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
                 });
     });
