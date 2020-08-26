@@ -974,14 +974,14 @@ function inserirPedidos(req, res, next) {
                     	    + (pedido.valorreferenciatotal == undefined || pedido.valorreferenciatotal.toString().localeCompare('') == 0 ? '' : "valorreferenciatotal = "+pedido.valorreferenciatotal+",")
                     	    + (pedido.totalvolume == undefined || pedido.totalvolume.toString().localeCompare('') == 0 ? '' : "totalvolume = "+pedido.totalvolume+",")
                             + (pedido.totalprodutos == undefined || pedido.totalprodutos.toString().localeCompare('') == 0 ? '' : "totalprodutos = "+pedido.totalprodutos+",")
-                            + (pedido.enviadoemail == undefined || pedido.enviadoemail == null || pedido.enviadoemail.toString().localeCompare('') == 0 ? 1 : "enviadoemail = "+pedido.enviadoemail+",")
-                            + (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? 1 : "enviadoemailsupervisor = "+pedido.enviadoemailsupervisor+",")
+                            + (pedido.enviadoemail == undefined || pedido.enviadoemail == null || pedido.enviadoemail.toString().localeCompare('') == 0 ? "enviadoemail = 1," : "enviadoemail = "+pedido.enviadoemail+",")
+                            + (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? "enviadoemailsupervisor = 1," : "enviadoemailsupervisor = "+pedido.enviadoemailsupervisor+",")
                             + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',");
                             
                             query_insert = query_insert.substring(0, query_insert.length-1)+";";
         }
         
-        //console.log("Query: "+ query_insert);
+        console.log("Query: "+ query_insert);
 
         db.none(query_insert)
         .then(function () {
