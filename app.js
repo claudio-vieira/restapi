@@ -30,11 +30,8 @@ var db_vendedores = require('./queries_vendedores');
 var db_clientes = require('./queries_clientes');
 var db_detalhe_gordura = require('./queries_detalhe_gordura');
 var db_processos = require('./processos');
+var db_envioEmail = require('./envioEmail');
 var bodyParser = require('body-parser');
-
-//app.use(bodyParser.json()); // support json encoded bodies
-//app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
@@ -45,14 +42,9 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json({limit: '10mb', extended: true})) // support json encoded bodies
 app.use(bodyParser.urlencoded({limit: '10mb', extended: true})) // support encoded bodies
 
-/*app.get('/', function (req, res) {
-  res.send('Hello World!');
-});*/
-
 app.listen(3001, function () {
   console.log('Example app listening on port 3001!');
 });
-
 
 //Chamadas da Promocao Especial
 app.post('/api/recuperarHistoricoGordura', db_historico_gordura.recuperarHistoricoGordura);

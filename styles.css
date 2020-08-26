@@ -1,0 +1,63 @@
+.textCenter{
+    text-align: center;
+}
+.section{
+    display: inline-block;
+    width: 100%;
+}
+.square{
+    height: 20px;
+    width: 20px;
+    text-align: center;
+    border-style: solid;
+    display: inline-block;
+    border-width: 2px;
+}
+.inline-block{
+    display: inline-block;
+}
+p{
+    margin: 0;
+}
+label{
+    display: block;
+}
+.null{
+    color: white;
+}
+table{
+    border-collapse: collapse;
+    width: 100%;
+}
+table, th, td {
+	border: 1px solid black;
+}
+table > tbody > tr > td:nth-child(1),
+table > tbody > tr > td:nth-child(2),
+table > tbody > tr > td:nth-child(4),
+table > tbody > tr > td:nth-child(5),
+table > tbody > tr > td:nth-child(6),
+table > tbody > tr > td:nth-child(7) {
+	text-align: center;
+}
+.section.rodape > div{
+    float: left;
+    text-align: right;
+}
+.section.rodape > div:nth-child(1),
+.section.representante > div > div:nth-child(1),
+.section.cliente > div > div:nth-child(1),
+table > thead > tr{
+    background-color: #cccccc;
+}
+h1, h2{
+    margin: 0;
+}
+hr{
+    margin: 2px;
+}
+.section.cabecalho{
+    background-image: url(logo-liane.png);
+    background-repeat: no-repeat;
+    min-height: 88px;
+}

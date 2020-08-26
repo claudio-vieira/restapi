@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <style>
+            .textCenter{
+                text-align: center;
+            }
+            .section{
+                display: inline-block;
+                width: 100%;
+            }
+            .square{
+                height: 20px;
+                width: 20px;
+                text-align: center;
+                border-style: solid;
+                display: inline-block;
+                border-width: 2px;
+            }
+            .inline-block{
+                display: inline-block;
+            }
+            p{
+                margin: 0;
+            }
+            label{
+                display: block;
+            }
+            .null{
+                color: white;
+            }
+            table{
+                border-collapse: collapse;
+                width: 100%;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+            table > tbody > tr > td:nth-child(1),
+            table > tbody > tr > td:nth-child(2),
+            table > tbody > tr > td:nth-child(4),
+            table > tbody > tr > td:nth-child(5),
+            table > tbody > tr > td:nth-child(6),
+            table > tbody > tr > td:nth-child(7) {
+                text-align: center;
+            }
+            .section.rodape > div{
+                float: left;
+                text-align: right;
+            }
+            .section.rodape > div:nth-child(1),
+            .section.representante > div > div:nth-child(1),
+            .section.cliente > div > div:nth-child(1),
+            table > thead > tr{
+                background-color: #cccccc;
+            }
+            h1, h2{
+                margin: 0;
+            }
+            hr{
+                margin: 2px;
+            }
+            .section.cabecalho{
+                background-image: url("file:///C://Users//claud//visual-studio-workspace//liane//node-api-postgres//logo-liane.png");
+                background-repeat: no-repeat;
+                min-height: 88px;
+            }
+         </style>         
+    </head>
+    <body>
+        <section class="section cabecalho">
+            <div class="textCenter">
+                <h1>Pedido <%= pedido.cdpedido %></h1>
+                <h1>Data <%= pedido.dtpedido %></h1>
+            </div>
+        </section>
+        <hr>
+        <section class="section">
+            <div style="width:50%;float: left;">
+                <h1><b>Indústrias Alimentícias Liane LTDA</b></h1>
+                <h2>Faturado por <%= pedido.nomeCidade %></h2>
+                <h1><b><%= pedido.situacaoDescricao %></b></h1>
+            </div>
+            <div style="width:30%;float: left;">
+                <h1>CNPJ <%= pedido.cnpjcliente %></h1>
+            </div>
+            <div style="width:20%;float: left;">
+                <h1>IE <%= pedido.inscrestadual %></h1>
+            </div>
+        </section>
+        <hr>
+        <!--<section class="section">
+            <div style="width:20%;float: left;"><h2>Frete</h2></div>
+            <div style="width:40%;float: left;">
+                <div class="square">
+                    <h3 style="margin:0;"><p>X</p></h3>
+                </div>
+                <h2 class="inline-block">Retirada (FOB)</h2>
+            </div>
+            <div style="width:40%;float: left;">
+                <div class="square">
+                    <h3 style="margin:0;"><p>X</p></h3>
+                </div>
+                <h2 class="inline-block">Entrega (CIF)</h2>
+            </div>
+        </section>-->
+        <hr>
+        <section class="section cliente">
+            <div style="width: 50%;float: left;">
+                <div style="width: 20%;float:left;">
+                    <label><b>Cliente</b></label>
+                    <label><b>CNPJ</b></label>
+                    <label><b>IE</b></label>
+                    <label><b>CEP</b></label>
+                    <label><b>Endereço</b></label>
+                    <label><b>Cidade</b></label>
+                </div>
+                <div style="width: 80%;float:left;">
+                    <label><%= pedido.cdcliente %> <%= pedido.nomeCliente %></label>
+                    <label><%= pedido.cnpjcliente %></label>
+                    <label><%= pedido.inscrestadual %></label>
+                    <label><%= pedido.cepCliente %></label>
+                    <label><%= pedido.enderecoCliente %></label>
+                    <label><%= pedido.nomeCidade %></label>
+                </div>
+            </div>
+            <div style="width: 50%;float: left;">
+                <div style="width: 20%; float: left;">
+                    <label class="null">.</label>
+                    <label class="null">.</label>
+                    <label><b>Email</b></label>
+                    <label><b>Fone</b></label>
+                    <label><b>Bairro</b></label>
+                    <label><b>UF</b></label>
+                </div>
+                <div style="width: 80%; float: left;">
+                    <label class="null">.</label>
+                    <label class="null">.</label>
+                    <label><%= pedido.emailCliente %></label>
+                    <label><%= pedido.phoneCliente %></label>
+                    <label><%= pedido.bairroCliente %></label>
+                    <label><%= pedido.ufCliente %></label>
+                </div>
+            </div>
+        </section>
+        <hr>
+        <section class="section representante">
+            <div style="width: 70%; float: left;">
+                <div style="width: 30%; float: left;">
+                    <label><b>Representante</b></label>
+                    <label><b>Cond. Pagamento</b></label>
+                    <label><b>Observação</b></label>
+                </div>
+                <div style="width: 70%; float: left;">
+                    <label><%= pedido.nomeRepresentante %></label>
+                    <label><%= pedido.condPagamento %></label>
+                    <label><%= pedido.observacao %></label>
+                </div>
+            </div>
+            <div style="width: 30%; float: left;">
+                <div style="width: 30%; float: left;">
+                    <label><b>Fone</b></label>
+                    <label class="null"><b>.</b></label>
+                    <label class="null"><b>.</b></label>
+                </div>
+                <div style="width: 70%; float: left;">
+                    <label><%= pedido.phoneRepresentante %></label>
+                    <label class="null">.</label>
+                    <label class="null">.</label>
+                </div>
+            </div>
+        </section>
+        <hr>
+        <section class="section itens">
+            <table class='table striped'>
+                <thead>
+                    <tr>
+                        <th><b>Item</b></th>
+                        <th><b>Cod</b></th>
+                        <th><b>Descrição</b></th>
+                        <th><b>UN</b></th>
+                        <th><b>Qtd</b></th>
+                        <th><b>Unitário</b></th>
+                        <th><b>Total</b></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <% pedido.itens.forEach(item => {%>
+                <tr>
+                    <td><%= item.ordenacao %></td>
+                    <td><%= item.codigo %></td>
+                    <td><%= item.descricao %></td>
+                    <td><%= item.unidade %></td>
+                    <td><%= item.quantidade %></td>
+                    <td><%= item.valorUnitario %></td>
+                    <td><%= item.total %></td>
+                </tr>
+                <%  });%>
+                </tbody>
+            </table>
+        </section>
+        <hr>
+        <section class="section rodape">
+            <div style="width: 80%;">
+                <label><b>Valor Total do Pedido</b></label>
+                <label><b>Total Peso Bruto Biscoito</b></label>
+                <label><b>Total Peso Bruto Macarrão</b></label>
+                <label><b>Total Peso Bruto Farinha</b></label>
+                <label><b>Total Peso Bruto Revenda</b></label>
+                <label><b>Total Peso Bruto Geral</b></label>
+                <label><b>Cubagem Total</b></label>
+            </div>
+            <div style="width: 20%;">
+                <label><%= pedido.totalPedido %></label>
+                <label><%= pedido.totalPesoBiscoito %></label>
+                <label><%= pedido.totalPesoMacarrao %></label>
+                <label><%= pedido.totalPesoFarinha %></label>
+                <label><%= pedido.totalPesoRevenda %></label>
+                <label><%= pedido.totalPesoGeral %></label>
+                <label><%= pedido.cubagemTotal %></label>
+            </div>
+        </section>
+    </body>
+</html>
