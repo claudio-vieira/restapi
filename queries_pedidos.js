@@ -981,7 +981,7 @@ function inserirPedidos(req, res, next) {
                             query_insert = query_insert.substring(0, query_insert.length-1)+";";
         }
         
-        console.log("Query: "+ query_insert);
+        //console.log("Query: "+ query_insert);
 
         db.none(query_insert)
         .then(function () {
