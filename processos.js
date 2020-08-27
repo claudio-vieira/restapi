@@ -67,7 +67,7 @@ cron.schedule("*/20 * * * * *", function() {
 
     db.task('insert-clientes', async t => {
         const clientes = await t.any('SELECT * FROM clientes c WHERE c.enviadoftp is false');        
-        //if(clientes != undefined) processarClientesInit(clientes);
+        if(clientes != undefined) processarClientesInit(clientes);
     })
     .then(data => {
         // success
@@ -181,7 +181,7 @@ cron.schedule("*/20 * * * * *", function() {
 
         if(pedidos.length > 0 
             && strPedido.localeCompare("<PEDIDOS>\n") != 0){
-            //enviaPedidos(strPedido, strPedidoItem, pedidos);
+            enviaPedidos(strPedido, strPedidoItem, pedidos);
         }
     })
     .then(data => {
