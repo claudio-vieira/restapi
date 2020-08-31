@@ -95,7 +95,7 @@ cron.schedule("*/60 * * * * *", function() {
             
             var mailOptions = {
                 from: 'suporte.lianealimentos@gmail.com',
-                cc: 'grupoliane@gmail.com',
+                cc: ["grupoliane@gmail.com"],
                 to: pedidos[j].emailcliente,
                 subject: 'Pedidos para validar',
                 text: "Olá "+pedidos[j].nomecliente+", em anexo o pedido feito no dia "+pedidos[j].dtpedido+
@@ -110,7 +110,7 @@ cron.schedule("*/60 * * * * *", function() {
 
             var mailOptionsSupervisor = {
                 from: 'suporte.lianealimentos@gmail.com',
-                cc: 'grupoliane@gmail.com',
+                cc: ["grupoliane@gmail.com"],
                 to: pedidos[j].emailcliente,
                 subject: 'Pedidos para validar',
                 text: 'Olá '+pedidos[j].nomesupervisor+", o pedido feito no dia "+pedidos[j].dtpedido+
@@ -127,7 +127,7 @@ cron.schedule("*/60 * * * * *", function() {
 
                 var res = await transporter.sendMail(mailOptions);
 
-                if(res.accepted.length == 1){
+                if(res.accepted.length == 1 || res.accepted.length == 2){
                     //console.log('Email sent Cliente: ' + info.response);
                     var sql_update = "update pedidos set enviadoemail = 1 "+
                                     " where cdvendedor = "+pedidos[j].cdvendedor+
@@ -155,7 +155,7 @@ cron.schedule("*/60 * * * * *", function() {
 
                 var res = await transporter.sendMail(mailOptionsSupervisor);
                 //console.log("res", res);
-                if(res.accepted.length == 1){
+                if(res.accepted.length == 1 || res.accepted.length == 2){
 
                     var sql_update = "update pedidos set enviadoemailsupervisor = 1 "+
                                     " where cdvendedor = "+pedidos[j].cdvendedor+
