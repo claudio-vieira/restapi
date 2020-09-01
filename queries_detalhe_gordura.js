@@ -89,13 +89,13 @@ function inserirDetalheGordura(req, res, next) {
                         +","+(detalheGordura.nunotafiscal == 0 ? null : detalheGordura.nunotafiscal)
                         +","+(detalheGordura.addgordura == 0 ? null : detalheGordura.addgordura.toString().replace(/,/, '.'))
                         +","+ (detalheGordura.subgordura == 0 ? null : detalheGordura.subgordura.toString().replace(/,/, '.'))
-                        +") ON CONFLICT ON CONSTRAINT detalhe_gordura_pkey DO UPDATE SET "
+                        +");"; /*ON CONFLICT ON CONSTRAINT detalhe_gordura_pkey DO UPDATE SET "
                         + (detalheGordura.cdvendedor == undefined || detalheGordura.cdvendedor == 0 ? '' : "cdvendedor = " + detalheGordura.cdvendedor+",")
                         + (detalheGordura.nunotafiscal == undefined || detalheGordura.nunotafiscal == 0 ? '' : "nunotafiscal = " + detalheGordura.nunotafiscal+",")
                         + (detalheGordura.addgordura == undefined || detalheGordura.addgordura == 0 ? '' : "addgordura = " + detalheGordura.addgordura.toString().replace(/,/, '.')+",")
-                        + (detalheGordura.subgordura == undefined || detalheGordura.subgordura == 0 ? '' : "subgordura = " + detalheGordura.subgordura.toString().replace(/,/, '.')+",");
+                        + (detalheGordura.subgordura == undefined || detalheGordura.subgordura == 0 ? '' : "subgordura = " + detalheGordura.subgordura.toString().replace(/,/, '.')+",");*/
         
-        query_insert = query_insert.substring(0, query_insert.length-1)+";";
+        //query_insert = query_insert.substring(0, query_insert.length-1)+";";
 
         var valor = (parseFloat(detalheGordura.addgordura.toString().replace(/,/, '.')) + (-parseFloat(detalheGordura.subgordura.toString().replace(/,/, '.'))));
         //Alredy object in vector 
@@ -168,13 +168,21 @@ function inserirDetalheGordura(req, res, next) {
                     });
         })
     .catch(function (err) {
-        return next(err);
-        res.status(400)
+        //return next(err);
+        if(err.code == 23505){//Código de conflito quando já inserido
+            res.status(200)
+            .json({
+                status: 'success',
+                message: 'Sincronizados detalhes gordura'
+            });
+        }else{
+            res.status(400)
                 .json({
                     status: 'Warning',
                     data_detalhe_gordura: 'Erro: '+err,
                     message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
                 });
+        }
     });
 }
 
