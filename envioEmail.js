@@ -53,7 +53,7 @@ cron.schedule("*/60 * * * * *", function() {
         "INNER JOIN vendedores v on v.codigo = p.cdvendedor  "+
         "LEFT JOIN forma_pagamento f on f.codigo = p.cdformapagamento "+
         "LEFT JOIN supervisores s on s.codigo = p.cdsupervisor "+
-        "LEFT JOIN filial_representante fi on fi.cdvendedor = v.codigo and fi.cdfilial = p.cdlocalfaturamento "
+        "LEFT JOIN filial_representante fi on fi.cdvendedor = v.codigo and fi.cdfilial = p.cdlocalfaturamento "+
         "WHERE (p.enviadoemail = 0 OR p.enviadoemailsupervisor = 0) AND p.situacao != 9";
 
     db.task('envio-email', async t => {
