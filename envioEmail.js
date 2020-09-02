@@ -207,7 +207,7 @@ function preencherValores(value, items){
         // "tipotabela": (value.tipotabela != undefined && value.tipotabela != null ? value.tipotabela : ""),
         // "cdcobranca": (value.cdcobranca != undefined && value.cdcobranca != null ? value.cdcobranca : ""),
         // "cdvenda": (value.cdvenda != undefined && value.cdvenda != null ? value.cdvenda : ""),
-        "dtpedido": (value.dtpedido != undefined && value.dtpedido != null ? new Intl.DateTimeFormat('en-GB').format(value.dtpedido) : ""),
+        "dtpedido": (value.dtpedido != undefined && value.dtpedido != null ? ("0" + value.dtpedido.getDate()).substr(-2) + "/" + ("0" + (value.dtpedido.getMonth() + 1)).substr(-2) + "/" + value.dtpedido.getFullYear() : ""),
         // "dtentrega": (value.dtentrega != undefined && value.dtentrega != null ? value.dtentrega : ""),
         // "hrpedido": (value.hrpedido != undefined && value.hrpedido != null ? value.hrpedido : ""),
         // "cdformapagamento": (value.cdformapagamento != undefined && value.cdformapagamento != null ? value.cdformapagamento : ""),
@@ -287,11 +287,10 @@ function preencherValores(value, items){
     var cubagemTotal = 0;
 
     var itens_pedidos = [];
-    var count = 0;
     for(var j=0; j < items.length; j++) {
 
         var tmp ={
-            ordenacao: (count + 1)+"",
+            ordenacao: (j + 1)+"",
             codigo: items[j].cdproduto,
             descricao: items[j].descricaoproduto,
             unidade: items[j].unidade,
@@ -300,7 +299,7 @@ function preencherValores(value, items){
             total: (items[j].qtdeproduto * (items[j].valorunitario != null ? items[j].valorunitario : 0)).toFixed(2)
         }
         
-        itens_pedidos[count] = tmp;
+        itens_pedidos[j] = tmp;
 
         cubagemTotal += (items[j].altura * items[j].largura * items[j].profundidade * items[j].qtdeproduto);
 
