@@ -95,7 +95,7 @@ cron.schedule("*/60 * * * * *", function() {
             
             var mailOptions = {
                 from: 'suporte.lianealimentos@gmail.com',
-                //cc: ["grupoliane@gmail.com"],
+                cc: ["grupoliane@gmail.com"],
                 to: pedidos[j].emailcliente,
                 subject: 'Pedidos para validar',
                 text: "Olá "+pedidos[j].nomecliente+", em anexo o pedido feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
@@ -110,7 +110,7 @@ cron.schedule("*/60 * * * * *", function() {
 
             var mailOptionsSupervisor = {
                 from: 'suporte.lianealimentos@gmail.com',
-                //cc: ["grupoliane@gmail.com"],
+                cc: ["grupoliane@gmail.com"],
                 to: pedidos[j].emailcliente,
                 subject: 'Pedidos para validar',
                 text: 'Olá '+pedidos[j].nomesupervisor+", o pedido feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
