@@ -49,7 +49,7 @@
                 float: left;
                 text-align: right;
             }
-            .section.rodape > div:nth-child(1),
+            .section.rodape > div,
             .section.representante > div > div:nth-child(1),
             .section.cliente > div > div:nth-child(1),
             table > thead > tr{
@@ -58,23 +58,26 @@
             h1, h2{
                 margin: 0;
             }
-	    h1{
-		font-size: 13px;
- 	    }
+            h1{
+                font-size: 11px;
+            }
             h2{
-                font-size: 12px;
+                font-size: 10px;
             }
             label, th, td{
-                font-size: 9px;
+                font-size: 7px;
             }
             hr{
                 margin: 2px;
+            }
+            hr.section.rodape{
+                margin: 5px;
             }
             .section.cabecalho{
                /*background-image: url("file:///C://Users//claud//visual-studio-workspace//liane//node-api-postgres//logo-liane.png");*/
                 background-image: url("file:/home/ubuntu/node-api-postgres/logo-liane.png");
                 background-repeat: no-repeat;
-		background-size: 20%;
+		        background-size: 20%;
                 min-height: 50px;
             }
          </style>         
@@ -118,18 +121,24 @@
         </section>-->
         <hr>
         <section class="section cliente">
+            <div>
+                <div style="width: 10%;float:left;">
+                    <label><b> Cliente</b></label>
+                    <label><b> CNPJ</b></label>
+                </div>
+                <div style="width: 90%;float:left;">
+                    <label><%= pedido.cdcliente %> <%= pedido.nomeCliente %></label>
+                    <label><%= pedido.cnpjcliente %></label>
+                </div>
+            </div>
             <div style="width: 50%;float: left;">
                 <div style="width: 20%;float:left;">
-                    <label><b>Cliente</b></label>
-                    <label><b>CNPJ</b></label>
                     <label><b>IE</b></label>
                     <label><b>CEP</b></label>
                     <label><b>Endereço</b></label>
                     <label><b>Cidade</b></label>
                 </div>
                 <div style="width: 80%;float:left;">
-                    <label><%= pedido.cdcliente %> <%= pedido.nomeCliente %></label>
-                    <label><%= pedido.cnpjcliente %></label>
                     <label><%= pedido.inscrestadual %></label>
                     <label><%= pedido.cepCliente %></label>
                     <label><%= pedido.enderecoCliente %></label>
@@ -138,16 +147,12 @@
             </div>
             <div style="width: 50%;float: left;">
                 <div style="width: 20%; float: left;">
-                    <label class="null">.</label>
-                    <label class="null">.</label>
                     <label><b>Email</b></label>
                     <label><b>Fone</b></label>
                     <label><b>Bairro</b></label>
                     <label><b>UF</b></label>
                 </div>
                 <div style="width: 80%; float: left;">
-                    <label class="null">.</label>
-                    <label class="null">.</label>
                     <label><%= pedido.emailCliente %></label>
                     <label><%= pedido.phoneCliente %></label>
                     <label><%= pedido.bairroCliente %></label>
@@ -158,27 +163,31 @@
         <hr>
         <section class="section representante">
             <div style="width: 70%; float: left;">
-                <div style="width: 30%; float: left;">
+                <div style="width: 21.5%; float: left;">
                     <label><b>Representante</b></label>
                     <label><b>Cond. Pagamento</b></label>
-                    <label><b>Observação</b></label>
                 </div>
                 <div style="width: 70%; float: left;">
                     <label><%= pedido.nomeRepresentante %></label>
                     <label><%= pedido.condPagamento %></label>
-                    <label><%= pedido.observacao %></label>
                 </div>
             </div>
             <div style="width: 30%; float: left;">
                 <div style="width: 30%; float: left;">
                     <label><b>Fone</b></label>
                     <label class="null"><b>.</b></label>
-                    <label class="null"><b>.</b></label>
                 </div>
                 <div style="width: 70%; float: left;">
                     <label><%= pedido.phoneRepresentante %></label>
                     <label class="null">.</label>
-                    <label class="null">.</label>
+                </div>
+            </div>
+            <div>
+                <div style="width: 15%; float: left;">
+                    <label><b> Observação</b></label>
+                </div>
+                <div style="width: 85%; float: left;">
+                    <label><%= pedido.observacao %></label>
                 </div>
             </div>
         </section>
@@ -215,6 +224,12 @@
         <section class="section rodape">
             <div style="width: 80%;">
                 <label><b>Valor Total do Pedido</b></label>
+            </div>
+            <div style="width: 20%;">
+                <label><%= pedido.totalPedido %></label>
+            </div>
+            <hr>
+            <div style="width: 80%;">
                 <label><b>Total Peso Bruto Biscoito</b></label>
                 <label><b>Total Peso Bruto Macarrão</b></label>
                 <label><b>Total Peso Bruto Farinha</b></label>
@@ -223,7 +238,6 @@
                 <label><b>Cubagem Total</b></label>
             </div>
             <div style="width: 20%;">
-                <label><%= pedido.totalPedido %></label>
                 <label><%= pedido.totalPesoBiscoito %></label>
                 <label><%= pedido.totalPesoMacarrao %></label>
                 <label><%= pedido.totalPesoFarinha %></label>
