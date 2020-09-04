@@ -11,10 +11,11 @@
                 width: 100%;
             }
             .square{
-                height: 20px;
-                width: 20px;
+                height: 15px;
+                width: 15px;
                 text-align: center;
                 border-style: solid;
+                border-width: thin;
                 display: inline-block;
                 border-width: 2px;
             }
@@ -97,48 +98,49 @@
                 <h1><b><%= pedido.situacaoDescricao %></b></h1>
             </div>
             <div style="width:30%;float: left;">
-                <h1>CNPJ <%= pedido.cnpjcliente %></h1>
+                <h1>CNPJ <%= pedido.cnpjlocalfaturamento %></h1>
             </div>
             <div style="width:20%;float: left;">
-                <h1>IE <%= pedido.inscrestadual %></h1>
+                <!--<h1>IE <%= pedido.inscrestadual %></h1>-->
+                <h1>IE </h1>
             </div>
         </section>
         <hr>
-        <!--<section class="section">
+        <section class="section">
             <div style="width:20%;float: left;"><h2>Frete</h2></div>
             <div style="width:40%;float: left;">
                 <div class="square">
-                    <h3 style="margin:0;"><p>X</p></h3>
+                    <h3 style="margin:0;"><p><%= pedido.cdcobranca == 1 ? 'X' : '' %></p></h3>
                 </div>
                 <h2 class="inline-block">Retirada (FOB)</h2>
             </div>
             <div style="width:40%;float: left;">
                 <div class="square">
-                    <h3 style="margin:0;"><p>X</p></h3>
+                    <h3 style="margin:0;"><p><%= pedido.cdcobranca == 0 ? 'X' : '' %></p></h3>
                 </div>
                 <h2 class="inline-block">Entrega (CIF)</h2>
             </div>
-        </section>-->
+        </section>
         <hr>
         <section class="section cliente">
             <div>
                 <div style="width: 10%;float:left;">
                     <label><b> Cliente</b></label>
-                    <label><b> CNPJ</b></label>
                 </div>
                 <div style="width: 90%;float:left;">
                     <label><%= pedido.cdcliente %> <%= pedido.nomeCliente %></label>
-                    <label><%= pedido.cnpjcliente %></label>
                 </div>
             </div>
             <div style="width: 50%;float: left;">
                 <div style="width: 20%;float:left;">
+                    <label><b>CNPJ</b></label>
                     <label><b>IE</b></label>
                     <label><b>CEP</b></label>
                     <label><b>Endereço</b></label>
                     <label><b>Cidade</b></label>
                 </div>
                 <div style="width: 80%;float:left;">
+                    <label><%= pedido.cnpjcliente %></label>
                     <label><%= pedido.inscrestadual %></label>
                     <label><%= pedido.cepCliente %></label>
                     <label><%= pedido.enderecoCliente %></label>
@@ -147,12 +149,14 @@
             </div>
             <div style="width: 50%;float: left;">
                 <div style="width: 20%; float: left;">
+                    <label><b>Pedido do cliente</b></label>
                     <label><b>Email</b></label>
                     <label><b>Fone</b></label>
                     <label><b>Bairro</b></label>
                     <label><b>UF</b></label>
                 </div>
                 <div style="width: 80%; float: left;">
+                    <label><%= pedido.ordem %></label>
                     <label><%= pedido.emailCliente %></label>
                     <label><%= pedido.phoneCliente %></label>
                     <label><%= pedido.bairroCliente %></label>

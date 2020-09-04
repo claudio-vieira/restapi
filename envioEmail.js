@@ -32,8 +32,11 @@ cron.schedule("*/60 * * * * *", function() {
         "p.enviadoemail, "+
         "p.enviadoemailsupervisor, "+
         "p.totalvenda as totalPedido, "+ 
+        "p.cdcobranca, "+
+        "p.ordem, "+
         "f.descricao as descFormaPagamento, "+
         "fi.descricao as descfilialfaturamento, "+
+        "l.cnpj as cnpjlocalfaturamento, "+
         "c.cidade as nomeCidade, "+
         "c.inscrestadual, "+
         "c.nome as nomeCliente, "+
@@ -54,6 +57,7 @@ cron.schedule("*/60 * * * * *", function() {
         "LEFT JOIN forma_pagamento f on f.codigo = p.cdformapagamento "+
         "LEFT JOIN supervisores s on s.codigo = p.cdsupervisor "+
         "LEFT JOIN filial_representante fi on fi.cdvendedor = v.codigo and fi.cdfilial = p.cdlocalfaturamento "+
+        "LEFT JOIN local_faturamento l on l.codigo = fi.cdfilial "+
         "WHERE (p.enviadoemail = 0 OR p.enviadoemailsupervisor = 0) AND p.situacao != 9";
 
     db.task('envio-email', async t => {
@@ -205,9 +209,9 @@ function preencherValores(value, items){
         // "cdlocalfaturamento": (value.cdlocalfaturamento != undefined && value.cdlocalfaturamento != null ? value.cdlocalfaturamento : ""),
         "cdcliente": (value.cdcliente != undefined && value.cdcliente != null ? value.cdcliente : ""),
         // "cdclienteapk": (value.cdclienteapk != undefined && value.cdclienteapk != null ? value.cdclienteapk : ""),
-        // "cnpj": (value.cnpj != undefined && value.cnpj != null ? value.cnpj : ""),
+        "cnpjlocalfaturamento": (value.cnpjlocalfaturamento != undefined && value.cnpjlocalfaturamento != null ? value.cnpjlocalfaturamento : ""),
         // "tipotabela": (value.tipotabela != undefined && value.tipotabela != null ? value.tipotabela : ""),
-        // "cdcobranca": (value.cdcobranca != undefined && value.cdcobranca != null ? value.cdcobranca : ""),
+        "cdcobranca": (value.cdcobranca != undefined && value.cdcobranca != null ? value.cdcobranca : ""),
         // "cdvenda": (value.cdvenda != undefined && value.cdvenda != null ? value.cdvenda : ""),
         "dtpedido": (value.dtpedido != undefined && value.dtpedido != null ? ("0" + value.dtpedido.getDate()).substr(-2) + "/" + ("0" + (value.dtpedido.getMonth() + 1)).substr(-2) + "/" + value.dtpedido.getFullYear() : ""),
         // "dtentrega": (value.dtentrega != undefined && value.dtentrega != null ? value.dtentrega : ""),
@@ -227,7 +231,7 @@ function preencherValores(value, items){
         // "totalvenda": (value.totalvenda != undefined && value.totalvenda != null ? value.totalvenda : ""),
         // "totaldesconto": (value.totaldesconto != undefined && value.totaldesconto != null ? value.totaldesconto : ""),
         // "bensuframa": (value.bensuframa != undefined && value.bensuframa != null ? value.bensuframa : ""),
-        // "ordem": (value.ordem != undefined && value.ordem != null ? value.ordem : ""),
+         "ordem": (value.ordem != undefined && value.ordem != null ? value.ordem : "."),
          "observacao": (value.observacao != undefined && value.observacao != null ? value.observacao : ""),
         // "nupedidocliente": (value.nupedidocliente != undefined && value.nupedidocliente != null ? value.nupedidocliente : ""),
         // "nunotafiscal": (value.nunotafiscal != undefined && value.nunotafiscal != null ? value.nunotafiscal : ""),
@@ -254,16 +258,16 @@ function preencherValores(value, items){
         // "motivousogordurasupervisor": (value.motivousogordurasupervisor != undefined && value.motivousogordurasupervisor != null ? value.motivousogordurasupervisor : ""),
         "situacaoDescricao": (value.pendente != undefined && value.pendente != null && value.pendente == 0 ? "*ATENÇÃO - Pedido sujeito a análise" : "Pedido liberado automáticamente"),
 
-        "nomeCidade": (value.nomecidade != undefined && value.nomecidade != null ? value.nomecidade : ""),
+        "nomeCidade": (value.nomecidade != undefined && value.nomecidade != null ? value.nomecidade : "."),
         //"inscrestadual": (value.inscrestadual != undefined && value.inscrestadual != null ? formatToMask(value.inscrestadual, '###.###.###.###') : ""),
-        "inscrestadual": (value.inscrestadual != undefined && value.inscrestadual != null ? value.inscrestadual : ""),
+        "inscrestadual": (value.inscrestadual != undefined && value.inscrestadual != null ? value.inscrestadual : "."),
         "nomeCliente": (value.nomecliente != undefined && value.nomecliente != null ? value.nomecliente : ""),
-        "cepCliente": (value.cepcliente != undefined && value.cepcliente != null ? formatToMask(value.cepcliente, '#####-###') : ""),
-        "enderecoCliente": (value.enderecocliente != undefined && value.endereconumero != undefined && value.enderecocliente != null ? value.enderecocliente+", "+value.endereconumero : ""),
-        "emailCliente": (value.emailcliente != undefined && value.emailcliente != null ? value.emailcliente : ""),
-        "phoneCliente": (value.phonecliente != undefined && value.phonecliente != null ? value.phonecliente : ""),
-        "bairroCliente": (value.bairrocliente != undefined && value.bairrocliente != null ? value.bairrocliente : ""),
-        "ufCliente": (value.ufcliente != undefined && value.ufcliente != null ? value.ufcliente : ""),
+        "cepCliente": (value.cepcliente != undefined && value.cepcliente != null ? formatToMask(value.cepcliente, '#####-###') : "."),
+        "enderecoCliente": (value.enderecocliente != undefined && value.endereconumero != undefined && value.enderecocliente != null ? value.enderecocliente+", "+value.endereconumero : "."),
+        "emailCliente": (value.emailcliente != undefined && value.emailcliente != null ? value.emailcliente : "."),
+        "phoneCliente": (value.phonecliente != undefined && value.phonecliente != null ? value.phonecliente : "."),
+        "bairroCliente": (value.bairrocliente != undefined && value.bairrocliente != null ? value.bairrocliente : "."),
+        "ufCliente": (value.ufcliente != undefined && value.ufcliente != null ? value.ufcliente : "."),
         "nomeRepresentante": (value.nomerepresentante != undefined && value.nomerepresentante != null ? value.nomerepresentante : ""),
         "condPagamento": 
             (value.descformapagamento != undefined && value.descformapagamento != null ? value.descformapagamento+" " : "")+
@@ -276,8 +280,8 @@ function preencherValores(value, items){
             (value.parcela7 != undefined && value.parcela7 != null && value.parcela7 > 0 ? "P7 "+value.parcela7+" | " : "")+
             (value.parcela8 != undefined && value.parcela8 != null && value.parcela8 > 0 ? "P8 "+value.parcela8+" | " : "")+
             (value.parcela9 != undefined && value.parcela9 != null && value.parcela9 > 0 ? "P9 "+value.parcela9+" | " : ""),
-        "phoneRepresentante": (value.phonerepresentante != undefined && value.phonerepresentante != null ? value.phonerepresentante : ""),
-        "nroCompra": "",
+        "phoneRepresentante": (value.phonerepresentante != undefined && value.phonerepresentante != null ? value.phonerepresentante : "."),
+        "nroCompra": ".",
         "totalPedido": (value.totalpedido != undefined && value.totalpedido != null ? value.totalpedido.toFixed(2) : "")
     }
 
