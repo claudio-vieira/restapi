@@ -70,7 +70,8 @@ cron.schedule("*/60 * * * * *", function() {
                     "i.cdproduto, "+
                     "i.descricaoproduto, "+
                     "i.qtdeproduto, "+
-                    "i.precovenda as valorunitario,"+
+                    "i.precovenda as valorunitario, "+
+                    "i.st, "+
                     "p.especie, "+
                     "p.pesobruto, "+
                     "p.altura, "+
@@ -109,7 +110,7 @@ cron.schedule("*/60 * * * * *", function() {
                 " Este email é enviado automáticamente e não precisa ser respondido!",
                 attachments: [
                     {  
-                        filename: 'Report.pdf',
+                        filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
                         content: buffer
                     }],
             };
@@ -124,7 +125,7 @@ cron.schedule("*/60 * * * * *", function() {
                 " Este email é enviado automáticamente e não precisa ser respondido!",
                 attachments: [
                     {  
-                        filename: 'Report.pdf',
+                        filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
                         content: buffer
                     }],
             };
@@ -256,8 +257,8 @@ function preencherValores(value, items){
         // "cdsupervisor": (value.cdsupervisor != undefined && value.cdsupervisor != null ? value.cdsupervisor : ""),
         // "pendente": (value.pendente != undefined && value.pendente != null ? value.pendente : ""),
         // "motivousogordurasupervisor": (value.motivousogordurasupervisor != undefined && value.motivousogordurasupervisor != null ? value.motivousogordurasupervisor : ""),
-        "situacaoDescricao": (value.pendente != undefined && value.pendente != null && value.pendente == 0 ? "*ATENÇÃO - Pedido sujeito a análise" : "Pedido liberado automáticamente"),
-
+        //"situacaoDescricao": (value.pendente != undefined && value.pendente != null && value.pendente == 0 ? "*ATENÇÃO - Pedido sujeito a análise" : "Pedido liberado automáticamente"),
+        "situacaoDescricao": "*ATENÇÃO - Pedido sujeito a análise",
         "nomeCidade": (value.nomecidade != undefined && value.nomecidade != null ? value.nomecidade : "."),
         //"inscrestadual": (value.inscrestadual != undefined && value.inscrestadual != null ? formatToMask(value.inscrestadual, '###.###.###.###') : ""),
         "inscrestadual": (value.inscrestadual != undefined && value.inscrestadual != null ? value.inscrestadual : "."),
@@ -281,8 +282,7 @@ function preencherValores(value, items){
             (value.parcela8 != undefined && value.parcela8 != null && value.parcela8 > 0 ? "P8 "+value.parcela8+" | " : "")+
             (value.parcela9 != undefined && value.parcela9 != null && value.parcela9 > 0 ? "P9 "+value.parcela9+" | " : ""),
         "phoneRepresentante": (value.phonerepresentante != undefined && value.phonerepresentante != null ? value.phonerepresentante : "."),
-        "nroCompra": ".",
-        "totalPedido": (value.totalpedido != undefined && value.totalpedido != null ? value.totalpedido.toFixed(2) : "")
+        "nroCompra": "."
     }
 
     var totalPesoBiscoito = 0;
@@ -291,6 +291,9 @@ function preencherValores(value, items){
     var totalPesoRevenda = 0;
     var totalPesoGeral = 0;
     var cubagemTotal = 0;
+
+    var totalProdutos = 0;
+    var totalSt = 0;
 
     var itens_pedidos = [];
     for(var j=0; j < items.length; j++) {
@@ -302,7 +305,7 @@ function preencherValores(value, items){
             unidade: items[j].unidade,
             quantidade: items[j].qtdeproduto,
             valorUnitario: (items[j].valorunitario != null ? items[j].valorunitario.toFixed(2) : 0),
-            total: (items[j].qtdeproduto * (items[j].valorunitario != null ? items[j].valorunitario : 0)).toFixed(2)
+            total: parseFloat((items[j].qtdeproduto * (items[j].valorunitario != null ? items[j].valorunitario : 0)).toFixed(2))
         }
         
         itens_pedidos[j] = tmp;
@@ -310,6 +313,10 @@ function preencherValores(value, items){
         cubagemTotal += (items[j].altura * items[j].largura * items[j].profundidade * items[j].qtdeproduto);
 
         totalPesoGeral += items[j].pesobruto;
+
+        totalProdutos += tmp.total;
+
+        totalSt += items[j].st;
 
         if(items[j].especie == 1){//Macarrao
             totalPesoMacarrao += items[j].pesobruto;
@@ -322,6 +329,10 @@ function preencherValores(value, items){
         }
 
     }
+
+    data.totalProdutos = totalProdutos;
+    data.totalSt = totalSt;
+    data.totalPedido = totalProdutos + totalSt;
 
     data.totalPesoMacarrao = totalPesoMacarrao.toFixed(4);
     data.totalPesoBiscoito = totalPesoBiscoito.toFixed(4);
