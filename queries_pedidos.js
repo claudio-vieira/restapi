@@ -303,7 +303,7 @@ function recuperarPedidosPendentesSupervisor(req, res, next) {
    ' FROM pedidos                                                                           '+ 
    ' inner join vendedores on vendedores.codigo = pedidos.cdvendedor                        '+
    //' inner join clientes on clientes.codigo = pedidos.cdcliente  and clientes.cdvendedor = vendedores.codigo         '+
-   ' inner join clientes on CASE WHEN pedidos.cdcliente = 0 THEN (clientes.codigointerno = pedidos.cdclienteapk) ELSE (clientes.codigo = pedidos.cdcliente) END  and clientes.cdvendedor = vendedores.codigo         '+
+   ' inner join clientes on CASE WHEN pedidos.cdcliente = 0  THEN (clientes.cnpj = pedidos.cnpjcliente) ELSE (clientes.codigo = pedidos.cdcliente) END  and clientes.cdvendedor = vendedores.codigo         '+
    ' inner join tipo_tabela on tipo_tabela.codigo = pedidos.tipotabela and tipo_tabela.cdvendedor = vendedores.codigo    '+
    ' inner join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
    ' left join historico_gordura on historico_gordura.codigo = pedidos.cdmotivogordura          '+

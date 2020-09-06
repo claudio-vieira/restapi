@@ -105,12 +105,12 @@ function recuperarSupervisorParaLogin(req, res, next) {
     
     if(param.login !== undefined && param.login != '' && param.senha !== undefined && param.senha != ''){
         login = parseInt(param.login);
-        senha = parseInt(param.senha);
+        senha = param.senha;
     }else{
         return res.status(401).json({error: '� obrigat�rio o par�metro (login) e (senha) no corpo da requisi��o'});
     }
 
-    db.one('SELECT * FROM supervisores WHERE codigo = $1 and codigo = $2 ', [login,senha])
+    db.one('SELECT * FROM supervisores WHERE codigo = $1 and senha = $2 ', [login,senha])
         .then(function (data) {
             var items = Object.keys(data);
             if(items.length == 0){
