@@ -81,10 +81,9 @@ cron.schedule("*/20 * * * * *", function() {
     
     db.task('insert-pedidos', async t => {
     
-        var sql = "SELECT p.*,c1.idtipotabela as c1_idtipotabela, c2.idtipotabela as c2_idtipotabela "+
+        var sql = "SELECT p.*,c.idtipotabela "+
         "FROM pedidos p "+
-        "LEFT JOIN clientes c1 on c1.codigo = p.cdcliente and c1.cdvendedor = p.cdvendedor "+
-        "LEFT JOIN clientes c2 on c2.cnpj = p.cnpjcliente and c2.cdvendedor = p.cdvendedor "+
+        "LEFT JOIN clientes c on c.cnpj = p.cnpjcliente and c.cdvendedor = p.cdvendedor "+
         "WHERE p.enviadoftp is false and p.pendente = 1 ";
     
         const pedidos = await t.any(sql);
@@ -116,7 +115,7 @@ cron.schedule("*/20 * * * * *", function() {
                                 zeros(pedido.cdpedido,6) + "|" +
                                 itenspedidos[j].cdproduto + "|" +
                                 zeros(pedido.cdlocalfaturamento,2) + "|" +
-                                (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? (pedido.c1_idtipotabela != undefined && pedido.c1_idtipotabela != null ? zeros(pedido.c1_idtipotabela,4) : "") : zeros(pedido.c2_idtipotabela,4) ) + "|" +
+                                (pedido.idtipotabela == undefined || pedido.idtipotabela == null ? "" : zeros(pedido.idtipotabela,4) ) + "|" +
                                 itenspedidos[j].tipodesc + "|" +
                                 zeros(Math.round(itenspedidos[j].qtdeproduto),6) + "|" +
                                 (itenspedidos[j].precotabela != null ? itenspedidos[j].precotabela.toFixed(2) : 0) + "|" +
@@ -148,8 +147,7 @@ cron.schedule("*/20 * * * * *", function() {
                         (pedido.cdcliente != undefined ? pedido.cdcliente : "") + "|" +
                         pedido.cnpjcliente + "|" +
                         zeros(pedido.cdlocalfaturamento,2) + "|" +
-                        //(pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? zeros(pedido.c1_idtipotabela,4) : zeros(pedido.c2_idtipotabela,4)) + "|" +
-                        (pedido.c2_idtipotabela == undefined || pedido.c2_idtipotabela == null ? (pedido.c1_idtipotabela != undefined && pedido.c1_idtipotabela != null ? zeros(pedido.c1_idtipotabela,4) : "") : zeros(pedido.c2_idtipotabela,4) ) + "|" +
+                        (pedido.idtipotabela == undefined || pedido.idtipotabela == null ? "" : zeros(pedido.idtipotabela,4) ) + "|" +
                         pedido.dtpedido + "|" +
                         (pedido.ordem != undefined ? pedido.ordem : "") + "|" +
                         (pedido.observacao != undefined ? pedido.observacao : "") + "|" +
@@ -206,7 +204,12 @@ function processarPedidos(req, res, next) {
 
 	    db.task('my-task', async t => {
 
-            const pedidos = await t.any('SELECT p.*,c1.idtipotabela as c1_idtipotabela, c2.idtipotabela as c2_idtipotabela FROM pedidos p LEFT JOIN clientes c1 on c1.codigo = p.cdcliente LEFT JOIN clientes c2 on c2.codigointerno = p.cdclienteapk WHERE p.enviadoftp is false and p.pendente is false');
+            var sql = "SELECT p.*,c.idtipotabela "+
+                "FROM pedidos p "+
+                "LEFT JOIN clientes c on c.cnpj = p.cnpjcliente and c.cdvendedor = p.cdvendedor "+
+                "WHERE p.enviadoftp is false and p.pendente = 1 ";
+
+            const pedidos = await t.any(sql);
 
             const itenspedidos = await db.any('select ip.*, p.descricao FROM itens_pedido ip ' +
                 'inner join produtos p ' +
