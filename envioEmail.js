@@ -118,7 +118,7 @@ cron.schedule("*/60 * * * * *", function() {
             var mailOptionsSupervisor = {
                 from: 'suporte.lianealimentos@gmail.com',
                 cc: ["grupoliane@gmail.com"],
-                to: pedidos[j].emailcliente,
+                to: pedidos[j].emailsupervisor,
                 subject: 'Pedidos para validar',
                 text: 'Olá '+pedidos[j].nomesupervisor+", o pedido feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
                 " realizado com o vendedor "+pedidos[j].nomerepresentante+" aguarda sua aprovação!\n\n\n"+
