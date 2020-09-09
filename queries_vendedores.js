@@ -137,7 +137,7 @@ function recuperarVendedorPorCdSupervisor(req, res, next) {
         sql = "select * from vendedores where nome like '%"+nome.toUpperCase()+"%' or CAST(codigo AS VARCHAR(250)) like '"+nome.toUpperCase()+"'";
     }*/
     console.log(sql);
-    db.any("select v.* from vendedores v inner join supervisionados s on s.cdvendedor = v.codigo where s.cdsupervisor = "+cdsupervisor)
+    db.any("select v.* from vendedores v inner join supervisionados s on s.cdvendedor = v.codigo where s.cdsupervisor = "+cdsupervisor+" order by codigo")
         .then(function (data) {
             var items = Object.keys(data);
             items.forEach(function(item) {

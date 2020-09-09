@@ -285,7 +285,7 @@ function recuperarItensIdsPedidoPorCodigo(req, res, next) {
             'inner join produtos P  '+
             'on p.codigo = ip.cdproduto '+
             'where ip.cdpedido in ('+ids+') '+
-            (idvendedor != "" ? 'and ip.cdvendedor = '+idvendedor+' ' : ' ')+
+            (idvendedor != "" && idvendedor != "0" ? 'and ip.cdvendedor = '+idvendedor+' ' : ' ')+
             'group by ip.cdvendedor, ip.cdpreposto, ip.cdlocalfaturamento, ip.cdpedido, ip.cdproduto, p.descricao, p.especie';
 
     db.any(sql)
