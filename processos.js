@@ -110,8 +110,8 @@ cron.schedule("*/20 * * * * *", function() {
 
             for(var j=0; j < itenspedidos.length; j++) {
             
-                strPedidoItem += pedido.cdvendedor + "|" +
-                                pedido.cdvendedor + "|" +
+              strPedidoItem +=  zeros(pedido.cdvendedor,3) + "|" +
+                                zeros(pedido.cdvendedor,3) + "|" +
                                 zeros(pedido.cdpedido,6) + "|" +
                                 itenspedidos[j].cdproduto + "|" +
                                 zeros(pedido.cdlocalfaturamento,2) + "|" +
@@ -140,8 +140,8 @@ cron.schedule("*/20 * * * * *", function() {
     
             pedido.dtpedido = dateFormat(pedido.dtpedido, "dd/mm/yyyy");
     
-            strPedido += pedido.cdvendedor + "|" +
-                        pedido.cdvendedor + "|" +
+            strPedido += zeros(pedido.cdvendedor,3) + "|" +
+                        zeros(pedido.cdvendedor,3) + "|" +
                         zeros(pedido.cdpedido,6) + "|" +
                         (pedido.cdclienteerp != undefined ? pedido.cdclienteerp : "") + "|" +
                         (pedido.cdcliente != undefined ? pedido.cdcliente : "") + "|" +
