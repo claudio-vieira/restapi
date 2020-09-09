@@ -37,6 +37,7 @@ cron.schedule("*/60 * * * * *", function() {
         "f.descricao as descFormaPagamento, "+
         "fi.descricao as descfilialfaturamento, "+
         "l.cnpj as cnpjlocalfaturamento, "+
+        "l.inscrestadual as inscrestadualfaturamento, "+
         "c.cidade as nomeCidade, "+
         "c.inscrestadual, "+
         "c.nome as nomeCliente, "+
@@ -52,8 +53,8 @@ cron.schedule("*/60 * * * * *", function() {
         "v.nome as nomeRepresentante, "+
         "CASE WHEN v.celular IS NOT NULL THEN v.celular ELSE v.telefone END as phoneRepresentante "+
         "FROM pedidos p "+
-        "INNER JOIN clientes c ON c.cnpj = p.cnpjcliente "+
         "INNER JOIN vendedores v on v.codigo = p.cdvendedor  "+
+        "INNER JOIN clientes c ON c.cnpj = p.cnpjcliente and c.cdvendedor = v.codigo "+
         "LEFT JOIN forma_pagamento f on f.codigo = p.cdformapagamento "+
         "LEFT JOIN supervisores s on s.codigo = p.cdsupervisor "+
         "LEFT JOIN filial_representante fi on fi.cdvendedor = v.codigo and fi.cdfilial = p.cdlocalfaturamento "+
@@ -211,6 +212,7 @@ function preencherValores(value, items){
         "cdcliente": (value.cdcliente != undefined && value.cdcliente != null ? value.cdcliente : ""),
         // "cdclienteapk": (value.cdclienteapk != undefined && value.cdclienteapk != null ? value.cdclienteapk : ""),
         "cnpjlocalfaturamento": (value.cnpjlocalfaturamento != undefined && value.cnpjlocalfaturamento != null ? value.cnpjlocalfaturamento : ""),
+        "inscrestadualfaturamento": (value.inscrestadualfaturamento != undefined && value.inscrestadualfaturamento != null ? value.inscrestadualfaturamento : ""),
         // "tipotabela": (value.tipotabela != undefined && value.tipotabela != null ? value.tipotabela : ""),
         "cdcobranca": (value.cdcobranca != undefined && value.cdcobranca != null ? value.cdcobranca : ""),
         // "cdvenda": (value.cdvenda != undefined && value.cdvenda != null ? value.cdvenda : ""),
@@ -305,7 +307,7 @@ function preencherValores(value, items){
             unidade: items[j].unidade,
             quantidade: items[j].qtdeproduto,
             valorUnitario: (items[j].valorunitario != null ? items[j].valorunitario.toFixed(2) : 0),
-            total: parseFloat((items[j].qtdeproduto * (items[j].valorunitario != null ? items[j].valorunitario : 0)).toFixed(2))
+            total: parseFloat((items[j].qtdeproduto * (items[j].valorunitario != null ? items[j].valorunitario : 0))).toFixed(2)
         }
         
         itens_pedidos[j] = tmp;
@@ -314,7 +316,7 @@ function preencherValores(value, items){
 
         totalPesoGeral += items[j].pesobruto;
 
-        totalProdutos += tmp.total;
+        totalProdutos += (items[j].qtdeproduto * (items[j].valorunitario != null ? items[j].valorunitario : 0));
 
         totalSt += items[j].st;
 
@@ -330,9 +332,9 @@ function preencherValores(value, items){
 
     }
 
-    data.totalProdutos = totalProdutos;
-    data.totalSt = totalSt;
-    data.totalPedido = totalProdutos + totalSt;
+    data.totalProdutos = totalProdutos.toFixed(2);
+    data.totalSt = totalSt.toFixed(2);
+    data.totalPedido = (totalProdutos + totalSt).toFixed(2);
 
     data.totalPesoMacarrao = totalPesoMacarrao.toFixed(4);
     data.totalPesoBiscoito = totalPesoBiscoito.toFixed(4);
