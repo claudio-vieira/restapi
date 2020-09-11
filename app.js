@@ -266,6 +266,7 @@ app.post('/api/recuperarVendedores', db_vendedores.recuperarVendedores);
 app.post('/api/recuperarVendedoresPorCodigo/', db_vendedores.recuperarVendedorPorCodigo);
 app.post('/api/recuperarVendedorPorNome/', db_vendedores.recuperarVendedorPorNome);
 app.post('/api/recuperarVendedorPorNomeCodigo/', db_vendedores.recuperarVendedorPorNomeCodigo);
+app.post('/api/recuperarVendedorPorCodigoNomeComUFsQueAtende/', db_vendedores.recuperarVendedorPorCodigoNomeComUFsQueAtende);
 app.post('/api/recuperarVendedorPorCdSupervisor/', db_vendedores.recuperarVendedorPorCdSupervisor);
 app.post('/api/atualizarVendedor/', db_vendedores.atualizarVendedor);
 app.post('/api/inserirVendedores/', db_vendedores.inserirVendedores);

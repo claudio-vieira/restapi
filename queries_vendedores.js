@@ -58,6 +58,61 @@ function recuperarVendedorPorCodigo(req, res, next) {
     });
 }
 
+function recuperarVendedorPorCodigoNomeComUFsQueAtende(req, res, next) {
+    var nome = req.body.nome;
+    var sql = "select  "+
+        "v.*, "+
+        "array_to_string(array_agg(distinct c.uf),',') as ufs "+
+        "from vendedores v "+
+        "inner join clientes c on c.cdvendedor = v.codigo "+
+        "where v.nome like '%"+nome.toUpperCase()+"%' or CAST(v.codigo AS VARCHAR(250)) like '"+nome.toUpperCase()+"' "+
+        "group by  "+
+        "v.codigo, "+
+        "v.nome, "+
+        "v.endereco, "+
+        "v.municipio, "+
+        "v.bairro, "+
+        "v.uf, "+
+        "v.telefone, "+
+        "v.celular, "+
+        "v.email, "+
+        "v.idtabelapreco, "+
+        "v.nuultimopedido, "+
+        "v.precoliberado, "+
+        "v.descminmax, "+
+        "v.descavista, "+
+        "v.nudiasdescavista, "+
+        "v.permiteusargordura, "+
+        "v.reiniciadados, "+
+        "v.senha, "+
+        "v.descintermediario ";
+
+    db.any(sql)
+        .then(function (data) {
+            var items = Object.keys(data);
+            items.forEach(function(item) {
+                if(data[item] == null){
+                   data[item] = '';
+                }
+            });
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_sellers: data,
+                    message: 'Retrieved ONE vendedor'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_sellers: 'Não existe o vendedor ou houve algum problema',
+                    message: 'Err: '+err
+                });
+    });
+}
+
 function recuperarVendedorPorNome(req, res, next) {
     var nome = req.body.nome;
     db.any("select * from vendedores where nome like '%"+nome+"%'")
@@ -316,6 +371,7 @@ function atualizarVendedor(req, res, next){
 module.exports = {
     recuperarVendedores: recuperarVendedores,
     recuperarVendedorPorCodigo: recuperarVendedorPorCodigo,
+    recuperarVendedorPorCodigoNomeComUFsQueAtende: recuperarVendedorPorCodigoNomeComUFsQueAtende,
     recuperarVendedorPorNome: recuperarVendedorPorNome,
     recuperarVendedorPorNomeCodigo: recuperarVendedorPorNomeCodigo,
     recuperarVendedorPorCdSupervisor: recuperarVendedorPorCdSupervisor,
