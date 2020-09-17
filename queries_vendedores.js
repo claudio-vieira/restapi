@@ -32,12 +32,39 @@ function recuperarVendedores(req, res, next) {
 
 function recuperarVendedorPorCodigo(req, res, next) {
     var codigo = parseInt(req.body.codigo);
-    db.any('select * from vendedores where codigo = $1', codigo)
+
+    var sql = "select  "+
+                "codigo, "+
+                "nome, "+
+                "endereco, "+
+                "municipio, "+
+                "bairro, "+
+                "uf, "+
+                "telefone, "+
+                "celular, "+
+                "email, "+
+                "idtabelapreco, "+
+                "nuultimopedido, "+
+                "precoliberado, "+
+                "descminmax, "+
+                "descavista, "+
+                "nudiasdescavista, "+
+                "permiteusargordura, "+
+                "reiniciadados, "+
+                "senha, "+
+                "descintermediario, "+
+                "CAST(v.dtultimasinc as character varying(20)) as dtultimasinc "+
+                "from vendedores v  "+
+                "where v.codigo = "+codigo;
+    
+    db.any(sql)
         .then(function (data) {
             var items = Object.keys(data);
             items.forEach(function(item) {
                 if(data[item] == null){
                    data[item] = '';
+                }else{
+                    console.log("aqui: ", data[item].dtultimasinc);
                 }
             });
             res.status(200)
@@ -229,7 +256,7 @@ function inserirVendedores(req, res, next) {
         vendedor = req.body[i];
         //console.log("vendedor: ", vendedor);
         //console.log("vendedor.codigo: ", vendedor.codigo);
-        query_insert += "INSERT INTO vendedores(codigo,nome,endereco,municipio,bairro,uf,telefone,celular,email,idtabelapreco,nuultimopedido,precoliberado,descminmax,descavista,nudiasdescavista,permiteusargordura,reiniciadados) VALUES ("
+        query_insert += "INSERT INTO vendedores(codigo,nome,endereco,municipio,bairro,uf,telefone,celular,email,idtabelapreco,nuultimopedido,precoliberado,descminmax,descavista,nudiasdescavista,permiteusargordura,reiniciadados,dtultimasinc) VALUES ("
                         + (vendedor.codigo == undefined || vendedor.codigo.toString().localeCompare('') == 0 ? null : vendedor.codigo.toString())
                         +","+ (vendedor.nome == undefined || vendedor.nome.localeCompare('') == 0 ? null : "'"+vendedor.nome+"'")
                         +","+ (vendedor.endereco == undefined || vendedor.endereco.localeCompare('') == 0 ? null : "'"+vendedor.endereco+"'")
@@ -248,6 +275,7 @@ function inserirVendedores(req, res, next) {
                         +","+ (vendedor.permiteusargordura == undefined || vendedor.permiteusargordura.localeCompare('') == 0 ? null : "'"+vendedor.permiteusargordura+"'")
                         //+","+ (vendedor.senha == undefined || vendedor.senha.localeCompare('') == 0 ? null : "'"+vendedor.senha+"'")
                         +","+ (vendedor.reiniciadados == undefined || vendedor.reiniciadados.localeCompare('') == 0 ? null : "'"+vendedor.reiniciadados+"'")
+                        +","+ (vendedor.dtultimasinc == undefined || vendedor.dtultimasinc.localeCompare('') == 0 ? null : "'"+vendedor.dtultimasinc+"'")
                         +") ON CONFLICT ON CONSTRAINT vendedores_pkey DO UPDATE SET "
                         +(vendedor.codigo == undefined || vendedor.codigo.toString().localeCompare('') == 0 || vendedor.codigo.toString().localeCompare(' ') == 0 ? '' : ("codigo = " +vendedor.codigo.toString()+",") )
                         +(vendedor.nome == undefined || vendedor.nome.localeCompare('') == 0 || vendedor.nome.localeCompare(' ') == 0 ? '' : ("nome = " +"'"+vendedor.nome+"'"+",") )
@@ -267,6 +295,7 @@ function inserirVendedores(req, res, next) {
                         +(vendedor.permiteusargordura == undefined || vendedor.permiteusargordura.localeCompare('') == 0 || vendedor.permiteusargordura.localeCompare(' ') == 0 ? '' : ("permiteusargordura = " +"'"+vendedor.permiteusargordura+"'"+",") )
                         //+(vendedor.senha == undefined || vendedor.senha.localeCompare('') == 0 || vendedor.senha.localeCompare(' ') == 0 ? '' : ("senha = " +"'"+vendedor.senha+"'"+",") )
                         +(vendedor.reiniciadados == undefined || vendedor.reiniciadados.localeCompare('') == 0 || vendedor.reiniciadados.localeCompare(' ') == 0 ? '' : ("reiniciadados = " +"'"+vendedor.reiniciadados+"'"+",") )
+                        +(vendedor.dtultimasinc == undefined || vendedor.dtultimasinc.localeCompare('') == 0 || vendedor.dtultimasinc.localeCompare(' ') == 0 ? '' : ("dtultimasinc = " +"'"+vendedor.dtultimasinc+"'"+",") )
                         
                         query_insert = query_insert.substring(0, query_insert.length-1)+";";
     }
@@ -368,6 +397,40 @@ function atualizarVendedor(req, res, next){
 	
 }
 
+function atualizarDataSincronismoVendedor(req, res, next){
+	const param = req.body;
+
+    if(param.codigo == undefined || param.codigo == '' || param.dtultimasinc == undefined || param.dtultimasinc == ''){
+        return res.status(400).json({error: '(codigo) e (dtultimasinc) obrigatorio no corpo da requisicao'});
+    }
+	console.log("update vendedores set dtultimasinc = '"+param.dtultimasinc+"' where codigo = "+param.codigo);
+    db.any("update vendedores set dtultimasinc = '"+param.dtultimasinc+"' where codigo = "+param.codigo)
+		.then(data =>  {
+	        // success
+	        // data = as returned from the task's callback
+			//console.log("Pedido rejeitado com sucesso");
+
+			return res.status(200)
+				.json({
+					status: 'success',
+					data_pedidos: data,
+					message: 'Vendedor atualizado com sucesso'
+				});
+
+		}).catch(error => {
+			console.log("Ocorreu um erro ao atualizar o Vendedor  \n", error);
+		
+			return res.status(500)
+			.json({
+				status: 'Warning',
+				data_pedidos: 'Houve algum problema',
+				message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador'
+			});
+            
+	    });
+	
+}
+
 module.exports = {
     recuperarVendedores: recuperarVendedores,
     recuperarVendedorPorCodigo: recuperarVendedorPorCodigo,
@@ -377,6 +440,7 @@ module.exports = {
     recuperarVendedorPorCdSupervisor: recuperarVendedorPorCdSupervisor,
     inserirVendedores: inserirVendedores,
     atualizarVendedor:atualizarVendedor,
+    atualizarDataSincronismoVendedor: atualizarDataSincronismoVendedor,
     deletarVendedores: deletarVendedores,
     deletarVendedorPorCodigo: deletarVendedorPorCodigo
 };
