@@ -862,7 +862,7 @@ function inserirPedidos(req, res, next) {
                 +"cdvenda,cdformapagamento,parcela1,parcela2,parcela3,parcela4,parcela5,parcela6,parcela7,parcela8,parcela9,situacao,"
                 +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
                 +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
-                +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, enviadoemail, enviadoemailsupervisor, motivousogordurasupervisor) VALUES ";
+                +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, enviadoemail, enviadoemailsupervisor, motivousogordurasupervisor, enviadoemailrepsup) VALUES ";
 
 
             query_insert += "("+ (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? null : pedido.cdvendedor)
@@ -922,6 +922,7 @@ function inserirPedidos(req, res, next) {
                             +","+ (pedido.enviadoemail == undefined || pedido.enviadoemail == null || pedido.enviadoemail.toString().localeCompare('') == 0 ? 1 : pedido.enviadoemail)
                             +","+ (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? 1 : pedido.enviadoemailsupervisor)
                     	    +","+ (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? null : "'"+pedido.motivousogordurasupervisor+"'")
+                            +",0"
                             +") ON CONFLICT ON CONSTRAINT pedidos_pkey DO UPDATE SET "
                             + (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? '' : "cdvendedor = "+pedido.cdvendedor+",")
                             + (pedido.idfilial == undefined || pedido.idfilial.toString().localeCompare('') == 0 ? '' : "idfilial = "+pedido.idfilial+",")
@@ -976,7 +977,8 @@ function inserirPedidos(req, res, next) {
                             + (pedido.totalprodutos == undefined || pedido.totalprodutos.toString().localeCompare('') == 0 ? '' : "totalprodutos = "+pedido.totalprodutos+",")
                             + (pedido.enviadoemail == undefined || pedido.enviadoemail == null || pedido.enviadoemail.toString().localeCompare('') == 0 ? "enviadoemail = 1," : "enviadoemail = "+pedido.enviadoemail+",")
                             + (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? "enviadoemailsupervisor = 1," : "enviadoemailsupervisor = "+pedido.enviadoemailsupervisor+",")
-                            + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',");
+                            + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',")
+                            + (pedido.enviadoemailrepsup == undefined || pedido.enviadoemailrepsup == null || pedido.enviadoemailrepsup.toString().localeCompare('') == 0 ? "enviadoemailrepsup = 1," : "enviadoemailrepsup = "+pedido.enviadoemailrepsup+",");
                             
                             query_insert = query_insert.substring(0, query_insert.length-1)+";";
         }

@@ -1,13 +1,13 @@
 var db = require('./conexao').getDb();
 const cron = require("node-cron");
-//Required package
-//var pdf = require("pdf-creator-node");
 var pdf = require('html-pdf');
 var ejs = require('ejs');
-//var fs = require('fs');
 const { format } = require('path');
 var nodemailer = require('nodemailer');
 const { options } = require('./app');
+var utils = require('./utils');
+
+var TIPOOCORRENCIA = "API-EMAIL";
 
 cron.schedule("*/60 * * * * *", function() { 
     console.log("running a task EMAIL every minute");
@@ -31,6 +31,7 @@ cron.schedule("*/60 * * * * *", function() {
         "p.pendente, "+
         "p.enviadoemail, "+
         "p.enviadoemailsupervisor, "+
+        "p.enviadoemailrepsup, "+
         "p.totalvenda as totalPedido, "+ 
         "p.cdcobranca, "+
         "p.ordem, "+
@@ -51,6 +52,7 @@ cron.schedule("*/60 * * * * *", function() {
         "s.email as emailSupervisor, "+
         "s.descricao as nomeSupervisor, "+
         "v.nome as nomeRepresentante, "+
+        "v.email as emailRepresentante, "+
         "CASE WHEN v.celular IS NOT NULL THEN v.celular ELSE v.telefone END as phoneRepresentante "+
         "FROM pedidos p "+
         "INNER JOIN vendedores v on v.codigo = p.cdvendedor  "+
@@ -59,7 +61,7 @@ cron.schedule("*/60 * * * * *", function() {
         "LEFT JOIN supervisores s on s.codigo = p.cdsupervisor "+
         "LEFT JOIN filial_representante fi on fi.cdvendedor = v.codigo and fi.cdfilial = p.cdlocalfaturamento "+
         "LEFT JOIN local_faturamento l on l.codigo = fi.cdfilial "+
-        "WHERE (p.enviadoemail = 0 OR p.enviadoemailsupervisor = 0) AND p.situacao != 9";
+        "WHERE (p.enviadoemail = 0 OR p.enviadoemailsupervisor = 0 OR p.enviadoemailrepsup = 0) AND p.situacao != 9";
 
     db.task('envio-email', async t => {
         
@@ -106,9 +108,9 @@ cron.schedule("*/60 * * * * *", function() {
                 cc: ["grupoliane@gmail.com"],
                 to: pedidos[j].emailcliente,
                 subject: 'Pedidos para validar',
-                text: "Olá "+pedidos[j].nomecliente+", em anexo o pedido feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
+                text: "Olá "+pedidos[j].nomecliente+", em anexo o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
                 " realizado com o vendedor "+pedidos[j].nomerepresentante+".\n\n\n"+
-                " Este email é enviado automáticamente e não precisa ser respondido!",
+                " Este email é enviado automáticamente e não deve ser respondido!",
                 attachments: [
                     {  
                         filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
@@ -121,21 +123,36 @@ cron.schedule("*/60 * * * * *", function() {
                 cc: ["grupoliane@gmail.com"],
                 to: pedidos[j].emailsupervisor,
                 subject: 'Pedidos para validar',
-                text: 'Olá '+pedidos[j].nomesupervisor+", o pedido feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
+                text: "Olá CPD, o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
                 " realizado com o vendedor "+pedidos[j].nomerepresentante+" aguarda sua aprovação!\n\n\n"+
-                " Este email é enviado automáticamente e não precisa ser respondido!",
+                " Este email é enviado automáticamente e não deve ser respondido!",
                 attachments: [
                     {  
                         filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
                         content: buffer
                     }],
             };
-              
+
+            var mailOptionsRepresentanteSuporte = {
+                from: 'suporte.lianealimentos@gmail.com',
+                //cc: ["grupoliane@gmail.com"],
+                to: [pedidos[j].emailrepresentante, "grupoliane@gmail.com"],
+                subject: 'Pedido realizado!',
+                text: "Olá CPD, o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
+                " realizado com o vendedor "+pedidos[j].nomerepresentante+" aguarda sua aprovação!\n\n\n"+
+                " Este email é enviado automáticamente e não deve ser respondido!",
+                attachments: [
+                    {  
+                        filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
+                        content: buffer
+                    }],
+            };
+
             if(pedidos[j].enviadoemail == 0){
 
                 var res = await transporter.sendMail(mailOptions);
 
-                if(res.accepted.length == 1 || res.accepted.length == 2){
+                if(res.accepted.length >= 1 && res.rejected.length == 0){
                     //console.log('Email sent Cliente: ' + info.response);
                     var sql_update = "update pedidos set enviadoemail = 1 "+
                                     " where cdvendedor = "+pedidos[j].cdvendedor+
@@ -153,9 +170,21 @@ cron.schedule("*/60 * * * * *", function() {
                         console.log("ERRO: "+err);
                     });
                 }else{
-                    console.log("Problema envio de email pedido: "+pedidos[j].cdpedido+
-                                        " cliente: "+ pedidos[j].cdcliente+
-                                        " representante: "+ pedidos[j].cdvendedor);
+                    var msg = "Problema envio de email pedido: "+pedidos[j].cdpedido+
+                    " cliente: "+ pedidos[j].cdcliente+
+                    " representante: "+ pedidos[j].cdvendedor+". ";
+
+                    console.log(msg);
+
+                    if(res.rejected.length > 0){
+                        msg += "Emails rejeitados: ";
+                        for(var j=0; j < res.rejected.length; j++){
+                            msg += res.rejected[j]+" ";
+                        }
+                    }else{
+                        msg += res.response;                        
+                    }
+                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL CLIENTE", "", 0, "ERROR", false, "", db);
                 }
             }
 
@@ -163,7 +192,7 @@ cron.schedule("*/60 * * * * *", function() {
 
                 var res = await transporter.sendMail(mailOptionsSupervisor);
                 //console.log("res", res);
-                if(res.accepted.length == 1 || res.accepted.length == 2){
+                if(res.accepted.length >= 1 && res.rejected.length == 0){
 
                     var sql_update = "update pedidos set enviadoemailsupervisor = 1 "+
                                     " where cdvendedor = "+pedidos[j].cdvendedor+
@@ -181,12 +210,63 @@ cron.schedule("*/60 * * * * *", function() {
                         console.log("ERRO: "+err);
                     });
                 }else{
-                    console.log("Problema envio de email supervisor pedido: "+pedidos[j].cdpedido+
+                    var msg = "Problema envio de email supervisor pedido: "+pedidos[j].cdpedido+
                     " cliente: "+ pedidos[j].cdcliente+
-                    " representante: "+ pedidos[j].cdvendedor);
+                    " representante: "+ pedidos[j].cdvendedor+". ";
+
+                    console.log(msg);
+
+                    if(res.rejected.length > 0){
+                        msg += "Emails rejeitados: ";
+                        for(var j=0; j < res.rejected.length; j++){
+                            msg += res.rejected[j]+" ";
+                        }
+                    }else{
+                        msg += res.response;                        
+                    }
+                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL SUPERVISOR", "", 0, "ERROR", false, "", db);
                 }
             }
 
+            if(pedidos[j].enviadoemailrepsup == 0){
+
+                var res = await transporter.sendMail(mailOptionsRepresentanteSuporte);
+                //console.log("res", res);
+                if(res.accepted.length >= 1 && res.rejected.length == 0){
+
+                    var sql_update = "update pedidos set enviadoemailrepsup = 1 "+
+                                    " where cdvendedor = "+pedidos[j].cdvendedor+
+                                    " and cdpedido = "+pedidos[j].cdpedido+
+                                    " and cdcliente = "+pedidos[j].cdcliente;
+                                    
+                    await t.any(sql_update).then(function (sucess) {
+                        console.log("Setado enviado para o representante e suporte Pedido: "+pedidos[j].cdpedido+
+                                    " cliente: "+ pedidos[j].cdcliente+
+                                    " representante: "+ pedidos[j].cdvendedor);
+                    }).catch(function (err) {
+                        console.log("Problema setar enviado representante e suporte Pedido: "+pedidos[j].cdpedido+
+                                    " cliente: "+ pedidos[j].cdcliente+
+                                    " representante: "+ pedidos[j].cdvendedor);
+                        console.log("ERRO: "+err);
+                    });
+                }else{
+                    var msg = "Problema envio de email representante e suporte pedido: "+pedidos[j].cdpedido+
+                    " cliente: "+ pedidos[j].cdcliente+
+                    " representante: "+ pedidos[j].cdvendedor+". ";
+
+                    console.log(msg);
+
+                    if(res.rejected.length > 0){
+                        msg += "Emails rejeitados: ";
+                        for(var j=0; j < res.rejected.length; j++){
+                            msg += res.rejected[j]+" ";
+                        }
+                    }else{
+                        msg += res.response;                        
+                    }
+                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL REPRESENTANTE SUPORTE", "", 0, "ERROR", false, "", db);
+                }
+            }
         }        
     })
     .then(data => {

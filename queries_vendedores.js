@@ -63,8 +63,6 @@ function recuperarVendedorPorCodigo(req, res, next) {
             items.forEach(function(item) {
                 if(data[item] == null){
                    data[item] = '';
-                }else{
-                    console.log("aqui: ", data[item].dtultimasinc);
                 }
             });
             res.status(200)
