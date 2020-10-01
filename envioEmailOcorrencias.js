@@ -58,7 +58,6 @@ cron.schedule("*/60 * * * * *", function() {
                 var mailOptions = {
                     from: 'suporte.lianealimentos@gmail.com',
                     to: "grupoliane@gmail.com",
-                    //to: "claudio_vieira@ymail.com",
                     subject: 'Erro ao processar arquivo!',
                     text: body.body
                 };
