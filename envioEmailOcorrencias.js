@@ -57,8 +57,8 @@ cron.schedule("*/60 * * * * *", function() {
             for(const body of bodies){
                 var mailOptions = {
                     from: 'suporte.lianealimentos@gmail.com',
-                    //to: "grupoliane@gmail.com",
-                    to: "claudio_vieira@ymail.com",
+                    to: "grupoliane@gmail.com",
+                    //to: "claudio_vieira@ymail.com",
                     subject: 'Erro ao processar arquivo!',
                     text: body.body
                 };
