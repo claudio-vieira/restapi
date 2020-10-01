@@ -21,7 +21,7 @@ function convertDataDDMMYYYY(data){
     Data = Data da ocorrencia
     Situacao = S(sucess), W(warning), E(error)
 */
-function registrarOcorrencias(mensagem, tipo, metodo, nomearquivo, linha, situacao, arquivoprocessado, tag, db){
+function registrarOcorrencias(mensagem, tipo, metodo, nomearquivo, linha, situacao, arquivoprocessado, tag, db, statusemail){
 
     let date_ob = new Date();
     // adjust 0 before single digit date
@@ -41,8 +41,8 @@ function registrarOcorrencias(mensagem, tipo, metodo, nomearquivo, linha, situac
 
     mensagem = mensagem.replace(/'/g,"");
 
-    var query_insert = "INSERT INTO ocorrencias_ws(mensagem,tipo,metodo,nomearquivo,linha,dtocorrencia,situacao,arquivoprocessado, tag) VALUES "+
-                "('"+mensagem+"','"+tipo+"','"+metodo+"','"+nomearquivo+"',"+linha+",'"+dtocorrencia+"','"+situacao+"',"+arquivoprocessado+",'"+tag+"');";
+    var query_insert = "INSERT INTO ocorrencias_ws(mensagem,tipo,metodo,nomearquivo,linha,dtocorrencia,situacao,arquivoprocessado, tag, statusemail) VALUES "+
+                "('"+mensagem+"','"+tipo+"','"+metodo+"','"+nomearquivo+"',"+linha+",'"+dtocorrencia+"','"+situacao+"',"+arquivoprocessado+",'"+tag+"','"+statusemail+"');";
 
     db.none(query_insert)
     .then(function () {

@@ -184,7 +184,7 @@ cron.schedule("*/60 * * * * *", function() {
                     }else{
                         msg += res.response;                        
                     }
-                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL CLIENTE", "", 0, "ERROR", false, "", db);
+                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL CLIENTE", "", 0, "ERROR", false, "", db, "");
                 }
             }
 
@@ -224,7 +224,7 @@ cron.schedule("*/60 * * * * *", function() {
                     }else{
                         msg += res.response;                        
                     }
-                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL SUPERVISOR", "", 0, "ERROR", false, "", db);
+                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL SUPERVISOR", "", 0, "ERROR", false, "", db, "");
                 }
             }
 
@@ -264,7 +264,7 @@ cron.schedule("*/60 * * * * *", function() {
                     }else{
                         msg += res.response;                        
                     }
-                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL REPRESENTANTE SUPORTE", "", 0, "ERROR", false, "", db);
+                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL REPRESENTANTE SUPORTE", "", 0, "ERROR", false, "", db, "");
                 }
             }
         }        

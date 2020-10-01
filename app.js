@@ -31,6 +31,7 @@ var db_clientes = require('./queries_clientes');
 var db_detalhe_gordura = require('./queries_detalhe_gordura');
 var db_processos = require('./processos');
 var db_envioEmail = require('./envioEmail');
+var envioEmailOcorrencias = require('./envioEmailOcorrencias');
 var bodyParser = require('body-parser');
 
 app.use(function(req, res, next) {
