@@ -87,184 +87,186 @@ cron.schedule("*/60 * * * * *", function() {
             
             const itens = await t.any(sql_itens);
 
-            const data = preencherValores(pedidos[j], itens);
-            //console.log(data);
+            if(itens.length > 0){
+                const data = preencherValores(pedidos[j], itens);
+                //console.log(data);
 
-            const buffer = await htmlToPdfBuffer("template.ejs", {
-                pedido: data
-            });
+                const buffer = await htmlToPdfBuffer("template.ejs", {
+                    pedido: data
+                });
 
 
-            var transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'suporte.lianealimentos@gmail.com',
-                    pass: 'suportelianesfa'
-                }
-            });
-            
-            var mailOptions = {
-                from: 'suporte.lianealimentos@gmail.com',
-                cc: ["grupoliane@gmail.com"],
-                to: pedidos[j].emailcliente,
-                subject: 'Pedidos para validar',
-                text: "Olá "+pedidos[j].nomecliente+", em anexo o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
-                " realizado com o vendedor "+pedidos[j].nomerepresentante+".\n\n\n"+
-                " Este email é enviado automáticamente e não deve ser respondido!",
-                attachments: [
-                    {  
-                        filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
-                        content: buffer
-                    }],
-            };
-
-            var mailOptionsSupervisor = {
-                from: 'suporte.lianealimentos@gmail.com',
-                cc: ["grupoliane@gmail.com"],
-                to: pedidos[j].emailsupervisor,
-                subject: 'Pedidos para validar',
-                text: "Olá CPD, o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
-                " realizado com o vendedor "+pedidos[j].nomerepresentante+" aguarda sua aprovação!\n\n\n"+
-                " Este email é enviado automáticamente e não deve ser respondido!",
-                attachments: [
-                    {  
-                        filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
-                        content: buffer
-                    }],
-            };
-
-            var mailOptionsRepresentanteSuporte = {
-                from: 'suporte.lianealimentos@gmail.com',
-                //cc: ["grupoliane@gmail.com"],
-                to: [pedidos[j].emailrepresentante, "grupoliane@gmail.com"],
-                subject: 'Pedido realizado!',
-                text: "Olá CPD, o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
-                " realizado com o vendedor "+pedidos[j].nomerepresentante+" aguarda sua aprovação!\n\n\n"+
-                " Este email é enviado automáticamente e não deve ser respondido!",
-                attachments: [
-                    {  
-                        filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
-                        content: buffer
-                    }],
-            };
-
-            if(pedidos[j].enviadoemail == 0){
-
-                var res = await transporter.sendMail(mailOptions);
-
-                if(res.accepted.length >= 1 && res.rejected.length == 0){
-                    //console.log('Email sent Cliente: ' + info.response);
-                    var sql_update = "update pedidos set enviadoemail = 1 "+
-                                    " where cdvendedor = "+pedidos[j].cdvendedor+
-                                    " and cdpedido = "+pedidos[j].cdpedido+
-                                    " and cdcliente = "+pedidos[j].cdcliente;
-                                    
-                    await t.any(sql_update).then(function (sucess) {
-                        console.log("Setado enviado para o Cliente "+pedidos[j].nomecliente+
-                                    " codigo cliente: "+ pedidos[j].cdcliente+
-                                    " representante: "+ pedidos[j].cdvendedor);
-                    }).catch(function (err) {
-                        console.log("Problema setar enviado cliente: "+pedidos[j].cdcliente+
-                                    " pedido: "+ pedidos[j].cdpedido+
-                                    " representante: "+ pedidos[j].cdvendedor);
-                        console.log("ERRO: "+err);
-                    });
-                }else{
-                    var msg = "Problema envio de email pedido: "+pedidos[j].cdpedido+
-                    " cliente: "+ pedidos[j].cdcliente+
-                    " representante: "+ pedidos[j].cdvendedor+". ";
-
-                    console.log(msg);
-
-                    if(res.rejected.length > 0){
-                        msg += "Emails rejeitados: ";
-                        for(var j=0; j < res.rejected.length; j++){
-                            msg += res.rejected[j]+" ";
-                        }
-                    }else{
-                        msg += res.response;                        
+                var transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: 'suporte.lianealimentos@gmail.com',
+                        pass: 'suportelianesfa'
                     }
-                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL CLIENTE", "", 0, "ERROR", false, "", db, "");
-                }
-            }
+                });
+                
+                var mailOptions = {
+                    from: 'suporte.lianealimentos@gmail.com',
+                    cc: ["grupoliane@gmail.com"],
+                    to: pedidos[j].emailcliente,
+                    subject: 'Pedidos para validar',
+                    text: "Olá "+pedidos[j].nomecliente+", em anexo o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
+                    " realizado com o vendedor "+pedidos[j].nomerepresentante+".\n\n\n"+
+                    " Este email é enviado automáticamente e não deve ser respondido!",
+                    attachments: [
+                        {  
+                            filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
+                            content: buffer
+                        }],
+                };
 
-            if(pedidos[j].enviadoemailsupervisor == 0){
+                var mailOptionsSupervisor = {
+                    from: 'suporte.lianealimentos@gmail.com',
+                    cc: ["grupoliane@gmail.com"],
+                    to: pedidos[j].emailsupervisor,
+                    subject: 'Pedidos para validar',
+                    text: "Olá CPD, o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
+                    " realizado com o vendedor "+pedidos[j].nomerepresentante+" aguarda sua aprovação!\n\n\n"+
+                    " Este email é enviado automáticamente e não deve ser respondido!",
+                    attachments: [
+                        {  
+                            filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
+                            content: buffer
+                        }],
+                };
 
-                var res = await transporter.sendMail(mailOptionsSupervisor);
-                //console.log("res", res);
-                if(res.accepted.length >= 1 && res.rejected.length == 0){
+                var mailOptionsRepresentanteSuporte = {
+                    from: 'suporte.lianealimentos@gmail.com',
+                    //cc: ["grupoliane@gmail.com"],
+                    to: [pedidos[j].emailrepresentante, "grupoliane@gmail.com"],
+                    subject: 'Pedido realizado!',
+                    text: "Olá CPD, o pedido "+pedidos[j].cdpedido+" feito no dia "+(pedidos[j].dtpedido != undefined && pedidos[j].dtpedido != null ? pedidos[j].dtpedido.getDate()+"/"+(pedidos[j].dtpedido.getMonth()+1)+"/"+pedidos[j].dtpedido.getFullYear() : "")+
+                    " realizado com o vendedor "+pedidos[j].nomerepresentante+" aguarda sua aprovação!\n\n\n"+
+                    " Este email é enviado automáticamente e não deve ser respondido!",
+                    attachments: [
+                        {  
+                            filename: "PedidoLiane_"+pedidos[j].cdpedido+".pdf",
+                            content: buffer
+                        }],
+                };
 
-                    var sql_update = "update pedidos set enviadoemailsupervisor = 1 "+
-                                    " where cdvendedor = "+pedidos[j].cdvendedor+
-                                    " and cdpedido = "+pedidos[j].cdpedido+
-                                    " and cdcliente = "+pedidos[j].cdcliente;
-                                    
-                    await t.any(sql_update).then(function (sucess) {
-                        console.log("Setado enviado para o supervisor "+pedidos[j].nomesupervisor+
-                                    " cliente: "+ pedidos[j].cdcliente+
-                                    " representante: "+ pedidos[j].cdvendedor);
-                    }).catch(function (err) {
-                        console.log("Problema setar enviado supervisor: "+pedidos[j].nomesupervisor+
-                                    " cliente: "+ pedidos[j].cdcliente+
-                                    " representante: "+ pedidos[j].cdvendedor);
-                        console.log("ERRO: "+err);
-                    });
-                }else{
-                    var msg = "Problema envio de email supervisor pedido: "+pedidos[j].cdpedido+
-                    " cliente: "+ pedidos[j].cdcliente+
-                    " representante: "+ pedidos[j].cdvendedor+". ";
+                if(pedidos[j].enviadoemail == 0){
 
-                    console.log(msg);
+                    var res = await transporter.sendMail(mailOptions);
 
-                    if(res.rejected.length > 0){
-                        msg += "Emails rejeitados: ";
-                        for(var j=0; j < res.rejected.length; j++){
-                            msg += res.rejected[j]+" ";
-                        }
+                    if(res.accepted.length >= 1 && res.rejected.length == 0){
+                        //console.log('Email sent Cliente: ' + info.response);
+                        var sql_update = "update pedidos set enviadoemail = 1 "+
+                                        " where cdvendedor = "+pedidos[j].cdvendedor+
+                                        " and cdpedido = "+pedidos[j].cdpedido+
+                                        " and cdcliente = "+pedidos[j].cdcliente;
+                                        
+                        await t.any(sql_update).then(function (sucess) {
+                            console.log("Setado enviado para o Cliente "+pedidos[j].nomecliente+
+                                        " codigo cliente: "+ pedidos[j].cdcliente+
+                                        " representante: "+ pedidos[j].cdvendedor);
+                        }).catch(function (err) {
+                            console.log("Problema setar enviado cliente: "+pedidos[j].cdcliente+
+                                        " pedido: "+ pedidos[j].cdpedido+
+                                        " representante: "+ pedidos[j].cdvendedor);
+                            console.log("ERRO: "+err);
+                        });
                     }else{
-                        msg += res.response;                        
-                    }
-                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL SUPERVISOR", "", 0, "ERROR", false, "", db, "");
-                }
-            }
+                        var msg = "Problema envio de email pedido: "+pedidos[j].cdpedido+
+                        " cliente: "+ pedidos[j].cdcliente+
+                        " representante: "+ pedidos[j].cdvendedor+". ";
 
-            if(pedidos[j].enviadoemailrepsup == 0){
+                        console.log(msg);
 
-                var res = await transporter.sendMail(mailOptionsRepresentanteSuporte);
-                //console.log("res", res);
-                if(res.accepted.length >= 1 && res.rejected.length == 0){
-
-                    var sql_update = "update pedidos set enviadoemailrepsup = 1 "+
-                                    " where cdvendedor = "+pedidos[j].cdvendedor+
-                                    " and cdpedido = "+pedidos[j].cdpedido+
-                                    " and cdcliente = "+pedidos[j].cdcliente;
-                                    
-                    await t.any(sql_update).then(function (sucess) {
-                        console.log("Setado enviado para o representante e suporte Pedido: "+pedidos[j].cdpedido+
-                                    " cliente: "+ pedidos[j].cdcliente+
-                                    " representante: "+ pedidos[j].cdvendedor);
-                    }).catch(function (err) {
-                        console.log("Problema setar enviado representante e suporte Pedido: "+pedidos[j].cdpedido+
-                                    " cliente: "+ pedidos[j].cdcliente+
-                                    " representante: "+ pedidos[j].cdvendedor);
-                        console.log("ERRO: "+err);
-                    });
-                }else{
-                    var msg = "Problema envio de email representante e suporte pedido: "+pedidos[j].cdpedido+
-                    " cliente: "+ pedidos[j].cdcliente+
-                    " representante: "+ pedidos[j].cdvendedor+". ";
-
-                    console.log(msg);
-
-                    if(res.rejected.length > 0){
-                        msg += "Emails rejeitados: ";
-                        for(var j=0; j < res.rejected.length; j++){
-                            msg += res.rejected[j]+" ";
+                        if(res.rejected.length > 0){
+                            msg += "Emails rejeitados: ";
+                            for(var j=0; j < res.rejected.length; j++){
+                                msg += res.rejected[j]+" ";
+                            }
+                        }else{
+                            msg += res.response;                        
                         }
-                    }else{
-                        msg += res.response;                        
+                        utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL CLIENTE", "", 0, "ERROR", false, "", db, "");
                     }
-                    utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL REPRESENTANTE SUPORTE", "", 0, "ERROR", false, "", db, "");
+                }
+
+                if(pedidos[j].enviadoemailsupervisor == 0){
+
+                    var res = await transporter.sendMail(mailOptionsSupervisor);
+                    //console.log("res", res);
+                    if(res.accepted.length >= 1 && res.rejected.length == 0){
+
+                        var sql_update = "update pedidos set enviadoemailsupervisor = 1 "+
+                                        " where cdvendedor = "+pedidos[j].cdvendedor+
+                                        " and cdpedido = "+pedidos[j].cdpedido+
+                                        " and cdcliente = "+pedidos[j].cdcliente;
+                                        
+                        await t.any(sql_update).then(function (sucess) {
+                            console.log("Setado enviado para o supervisor "+pedidos[j].nomesupervisor+
+                                        " cliente: "+ pedidos[j].cdcliente+
+                                        " representante: "+ pedidos[j].cdvendedor);
+                        }).catch(function (err) {
+                            console.log("Problema setar enviado supervisor: "+pedidos[j].nomesupervisor+
+                                        " cliente: "+ pedidos[j].cdcliente+
+                                        " representante: "+ pedidos[j].cdvendedor);
+                            console.log("ERRO: "+err);
+                        });
+                    }else{
+                        var msg = "Problema envio de email supervisor pedido: "+pedidos[j].cdpedido+
+                        " cliente: "+ pedidos[j].cdcliente+
+                        " representante: "+ pedidos[j].cdvendedor+". ";
+
+                        console.log(msg);
+
+                        if(res.rejected.length > 0){
+                            msg += "Emails rejeitados: ";
+                            for(var j=0; j < res.rejected.length; j++){
+                                msg += res.rejected[j]+" ";
+                            }
+                        }else{
+                            msg += res.response;                        
+                        }
+                        utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL SUPERVISOR", "", 0, "ERROR", false, "", db, "");
+                    }
+                }
+
+                if(pedidos[j].enviadoemailrepsup == 0){
+
+                    var res = await transporter.sendMail(mailOptionsRepresentanteSuporte);
+                    //console.log("res", res);
+                    if(res.accepted.length >= 1 && res.rejected.length == 0){
+
+                        var sql_update = "update pedidos set enviadoemailrepsup = 1 "+
+                                        " where cdvendedor = "+pedidos[j].cdvendedor+
+                                        " and cdpedido = "+pedidos[j].cdpedido+
+                                        " and cdcliente = "+pedidos[j].cdcliente;
+                                        
+                        await t.any(sql_update).then(function (sucess) {
+                            console.log("Setado enviado para o representante e suporte Pedido: "+pedidos[j].cdpedido+
+                                        " cliente: "+ pedidos[j].cdcliente+
+                                        " representante: "+ pedidos[j].cdvendedor);
+                        }).catch(function (err) {
+                            console.log("Problema setar enviado representante e suporte Pedido: "+pedidos[j].cdpedido+
+                                        " cliente: "+ pedidos[j].cdcliente+
+                                        " representante: "+ pedidos[j].cdvendedor);
+                            console.log("ERRO: "+err);
+                        });
+                    }else{
+                        var msg = "Problema envio de email representante e suporte pedido: "+pedidos[j].cdpedido+
+                        " cliente: "+ pedidos[j].cdcliente+
+                        " representante: "+ pedidos[j].cdvendedor+". ";
+
+                        console.log(msg);
+
+                        if(res.rejected.length > 0){
+                            msg += "Emails rejeitados: ";
+                            for(var j=0; j < res.rejected.length; j++){
+                                msg += res.rejected[j]+" ";
+                            }
+                        }else{
+                            msg += res.response;                        
+                        }
+                        utils.registrarOcorrencias(msg, TIPOOCORRENCIA, "ENVIAR EMAIL REPRESENTANTE SUPORTE", "", 0, "ERROR", false, "", db, "");
+                    }
                 }
             }
         }        
