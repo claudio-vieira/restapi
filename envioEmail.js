@@ -396,20 +396,20 @@ function preencherValores(value, items){
 
         cubagemTotal += (items[j].altura * items[j].largura * items[j].profundidade * items[j].qtdeproduto);
 
-        totalPesoGeral += items[j].pesobruto;
+        totalPesoGeral += items[j].pesobruto * items[j].qtdeproduto;
 
         totalProdutos += (items[j].qtdeproduto * (items[j].valorunitario != null ? items[j].valorunitario : 0));
 
         totalSt += items[j].st;
 
         if(items[j].especie == 1){//Macarrao
-            totalPesoMacarrao += items[j].pesobruto;
+            totalPesoMacarrao += (items[j].pesobruto * items[j].qtdeproduto);
         } else if(items[j].especie == 2){//Biscoito
-            totalPesoBiscoito += items[j].pesobruto;
+            totalPesoBiscoito += (items[j].pesobruto * items[j].qtdeproduto);
         } else if(items[j].especie == 4){//Farinha
-            totalPesoFarinha += items[j].pesobruto;
+            totalPesoFarinha += (items[j].pesobruto * items[j].qtdeproduto);
         } else if(items[j].especie == 6){//Revenda
-            totalPesoRevenda += items[j].pesobruto;
+            totalPesoRevenda += (items[j].pesobruto * items[j].qtdeproduto);
         }
 
     }
