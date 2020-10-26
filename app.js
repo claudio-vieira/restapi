@@ -32,6 +32,7 @@ var db_detalhe_gordura = require('./queries_detalhe_gordura');
 var db_processos = require('./processos');
 var db_envioEmail = require('./envioEmail');
 var envioEmailOcorrencias = require('./envioEmailOcorrencias');
+//var envioWhatsapp = require('./envioWhatsapp');
 var bodyParser = require('body-parser');
 
 app.use(function(req, res, next) {
@@ -260,6 +261,7 @@ app.post('/api/recuperarPedidosPorFiltros', db_pedidos.recuperarPedidosPorFiltro
 app.post('/api/inserirPedidos', db_pedidos.inserirPedidos);
 app.post('/api/deletarPedidoPorCodigo', db_pedidos.deletarPedidoPorCodigo);
 app.post('/api/deletarPedidos', db_pedidos.deletarPedidos);
+app.post('/api/reenviarEmail', db_pedidos.reenviarEmail);
 
 
 //Chamadas para vendedores

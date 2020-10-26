@@ -401,7 +401,7 @@ function atualizarDataSincronismoVendedor(req, res, next){
     if(param.codigo == undefined || param.codigo == '' || param.dtultimasinc == undefined || param.dtultimasinc == ''){
         return res.status(400).json({error: '(codigo) e (dtultimasinc) obrigatorio no corpo da requisicao'});
     }
-	console.log("update vendedores set dtultimasinc = '"+param.dtultimasinc+"' where codigo = "+param.codigo);
+	//console.log("update vendedores set dtultimasinc = '"+param.dtultimasinc+"' where codigo = "+param.codigo);
     db.any("update vendedores set dtultimasinc = '"+param.dtultimasinc+"' where codigo = "+param.codigo)
 		.then(data =>  {
 	        // success

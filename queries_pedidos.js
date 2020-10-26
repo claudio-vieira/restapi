@@ -862,7 +862,8 @@ function inserirPedidos(req, res, next) {
                 +"cdvenda,cdformapagamento,parcela1,parcela2,parcela3,parcela4,parcela5,parcela6,parcela7,parcela8,parcela9,situacao,"
                 +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
                 +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
-                +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, enviadoemail, enviadoemailsupervisor, motivousogordurasupervisor, enviadoemailrepsup) VALUES ";
+                +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, enviadoemail, enviadoemailsupervisor, "
+                +"motivousogordurasupervisor, enviadoemailrepsup,criadoapp) VALUES ";
 
 
             query_insert += "("+ (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? null : pedido.cdvendedor)
@@ -922,7 +923,8 @@ function inserirPedidos(req, res, next) {
                             +","+ (pedido.enviadoemail == undefined || pedido.enviadoemail == null || pedido.enviadoemail.toString().localeCompare('') == 0 ? 1 : pedido.enviadoemail)
                             +","+ (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? 1 : pedido.enviadoemailsupervisor)
                     	    +","+ (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? null : "'"+pedido.motivousogordurasupervisor+"'")
-                            +",0"
+                            +",0" //enviadoemailrepsup
+                            +","+ (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? null : pedido.criadoapp)
                             +") ON CONFLICT ON CONSTRAINT pedidos_pkey DO UPDATE SET "
                             + (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? '' : "cdvendedor = "+pedido.cdvendedor+",")
                             + (pedido.idfilial == undefined || pedido.idfilial.toString().localeCompare('') == 0 ? '' : "idfilial = "+pedido.idfilial+",")
@@ -978,8 +980,9 @@ function inserirPedidos(req, res, next) {
                             + (pedido.enviadoemail == undefined || pedido.enviadoemail == null || pedido.enviadoemail.toString().localeCompare('') == 0 ? "enviadoemail = 1," : "enviadoemail = "+pedido.enviadoemail+",")
                             + (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? "enviadoemailsupervisor = 1," : "enviadoemailsupervisor = "+pedido.enviadoemailsupervisor+",")
                             + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',")
-                            + (pedido.enviadoemailrepsup == undefined || pedido.enviadoemailrepsup == null || pedido.enviadoemailrepsup.toString().localeCompare('') == 0 ? "enviadoemailrepsup = 1," : "enviadoemailrepsup = "+pedido.enviadoemailrepsup+",");
-                            
+                            + (pedido.enviadoemailrepsup == undefined || pedido.enviadoemailrepsup == null || pedido.enviadoemailrepsup.toString().localeCompare('') == 0 ? "enviadoemailrepsup = 1," : "enviadoemailrepsup = "+pedido.enviadoemailrepsup+",")
+                            + (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? "" : "criadoapp = "+pedido.criadoapp+",");
+
                             query_insert = query_insert.substring(0, query_insert.length-1)+";";
         }
         
@@ -1070,6 +1073,53 @@ function deletarPedidoPorCodigo(req, res, next) {
     });
 }
 
+function reenviarEmail(req, res, next){
+    try{
+        const param = req.body;
+
+        if(param.cdvendedor == undefined || param.cdvendedor == '' 
+            || param.cdpedido == undefined || param.cdpedido == ''
+            || param.tipo == undefined || param.tipo == ''){
+            return res.status(400).json({error: '(cdvendedor), (cdpedido) e (tipo) obrigatorio no corpo da requisicao'});
+        }
+        
+        var sql = "";
+
+        if(param.tipo.localeCompare("enviadoemail") == 0){
+            sql = "update pedidos set enviadoemail = 0 where cdvendedor = "+param.cdvendedor+" and cdpedido = "+param.cdpedido;
+        }else if(param.tipo.localeCompare("enviadoemailrepsup") == 0){
+            sql = "update pedidos set enviadoemailrepsup = 0 where cdvendedor = "+param.cdvendedor+" and cdpedido = "+param.cdpedido;
+        }
+
+        if(sql != ""){
+            db.any(sql)
+                .then(data =>  {
+                    return res.status(200)
+                        .json({
+                            status: 'success',
+                            message: 'Reenvio de email atualizado com sucesso'
+                        });
+
+                }).catch(error => {
+                    console.log("Ocorreu um erro ao solicitar reenvio do pedido  \n", error);
+                
+                    return res.status(500)
+                    .json({
+                        status: 'Warning',
+                        message: 'Houve algum problema. Favor tentar novamente.'
+                    });
+                    
+                });
+        }
+    } catch(err) {
+        res.status(400)
+            .json({
+                status: 'Warning',
+                message: 'Problema no reenvido de email. Persistindo o erro favor contactar o administrador.'
+            });
+    }
+}
+
 module.exports = {
     recuperarPedidos: recuperarPedidos,
     recuperarPedidosPorVendedor: recuperarPedidosPorVendedor,
@@ -1081,5 +1131,6 @@ module.exports = {
     recuperarPedidosPorFiltros: recuperarPedidosPorFiltros,
     inserirPedidos: inserirPedidos,
     deletarPedidoPorCodigo: deletarPedidoPorCodigo,
-    deletarPedidos: deletarPedidos
+    deletarPedidos: deletarPedidos,
+    reenviarEmail: reenviarEmail
 };
