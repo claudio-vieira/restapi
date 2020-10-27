@@ -863,7 +863,7 @@ function inserirPedidos(req, res, next) {
                 +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
                 +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
                 +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, enviadoemail, enviadoemailsupervisor, "
-                +"motivousogordurasupervisor, enviadoemailrepsup,criadoapp) VALUES ";
+                +"motivousogordurasupervisor, enviadoemailrepsup,criadoapp,nuproxpedido) VALUES ";
 
 
             query_insert += "("+ (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? null : pedido.cdvendedor)
@@ -925,6 +925,7 @@ function inserirPedidos(req, res, next) {
                     	    +","+ (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? null : "'"+pedido.motivousogordurasupervisor+"'")
                             +",0" //enviadoemailrepsup
                             +","+ (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? null : pedido.criadoapp)
+                            +","+ (pedido.nuproxpedido == undefined || pedido.nuproxpedido == null || pedido.nuproxpedido.toString().localeCompare('') == 0 ? null : pedido.nuproxpedido)
                             +") ON CONFLICT ON CONSTRAINT pedidos_pkey DO UPDATE SET "
                             + (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? '' : "cdvendedor = "+pedido.cdvendedor+",")
                             + (pedido.idfilial == undefined || pedido.idfilial.toString().localeCompare('') == 0 ? '' : "idfilial = "+pedido.idfilial+",")
@@ -981,7 +982,8 @@ function inserirPedidos(req, res, next) {
                             + (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? "enviadoemailsupervisor = 1," : "enviadoemailsupervisor = "+pedido.enviadoemailsupervisor+",")
                             + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',")
                             + (pedido.enviadoemailrepsup == undefined || pedido.enviadoemailrepsup == null || pedido.enviadoemailrepsup.toString().localeCompare('') == 0 ? "enviadoemailrepsup = 1," : "enviadoemailrepsup = "+pedido.enviadoemailrepsup+",")
-                            + (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? "" : "criadoapp = "+pedido.criadoapp+",");
+                            + (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? "" : "criadoapp = "+pedido.criadoapp+",")
+                            + (pedido.nuproxpedido == undefined || pedido.nuproxpedido == null || pedido.nuproxpedido.toString().localeCompare('') == 0 ? "" : "nuproxpedido = "+pedido.nuproxpedido+",");
 
                             query_insert = query_insert.substring(0, query_insert.length-1)+";";
         }
