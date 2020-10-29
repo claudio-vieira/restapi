@@ -45,6 +45,7 @@ function recuperarUltimoPedidoPorCodigoCliente(req, res, next) {
 
     var fVendedor = '';
     var fSupervisor = '';
+    var fCdpedido = '';
     var cdcliente = '';
     
     if(param.cdvendedor !== undefined && param.cdvendedor != ''){
@@ -65,6 +66,12 @@ function recuperarUltimoPedidoPorCodigoCliente(req, res, next) {
         return res.status(401).json({error: '(cdcliente) obrigatorio no corpo da requisicao para carregar o pedido'});
     }
 
+    if(param.cdpedido !== undefined && param.cdpedido != ''){
+        fCdpedido = ' and pedidos.cdpedido < '+parseInt(param.cdpedido);
+    }else{
+        return res.status(401).json({error: '(cdpedido) obrigatorio no corpo da requisicao para carregar o pedido'});
+    }
+    
     db.one('SELECT                                                                          '+
     ' pedidos.cdvendedor,                                                                   '+
     ' pedidos.cdpreposto,                                                                   '+
@@ -156,10 +163,10 @@ function recuperarUltimoPedidoPorCodigoCliente(req, res, next) {
    ' inner join supervisionados on supervisionados.cdvendedor = vendedores.codigo           '+
    ' inner join supervisores on supervisores.codigo = supervisionados.cdsupervisor          '+
    ' inner join clientes on clientes.codigo = pedidos.cdcliente  and clientes.cdvendedor = vendedores.codigo         '+
-    ' inner join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
+    ' left join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
 
-           ' WHERE 1=1 '+fVendedor+fSupervisor+cdcliente+
-           ' and pedidos.nunotafiscal IS NOT NULL and pedidos.nunotafiscal > 0'+
+           ' WHERE 1=1 '+fVendedor+fSupervisor+cdcliente+fCdpedido+
+           //' and pedidos.nunotafiscal IS NOT NULL and pedidos.nunotafiscal > 0'+
            ' ORDER BY pedidos.dtpedido DESC limit 1') 
          .then(function (data) {
 
@@ -275,7 +282,8 @@ function recuperarPedidosPendentesSupervisor(req, res, next) {
     ' vendedores.celular as "vendedorCelular",                                             '+
     ' vendedores.email as "vendedorEmail",                                                 '+
     ' vendedores.idtabelapreco as "vendedorIdtabelapreco",                                 '+
-    ' vendedores.nuultimopedido as "vendedorNuUltimopedido",                               '+
+    //' vendedores.nuultimopedido as "vendedorNuUltimopedido",                               '+
+    '(select max(p.cdpedido) from pedidos p where p.cdvendedor = vendedores.codigo and p.cdpedido < pedidos.cdpedido) as "vendedorNuUltimopedido", '+
     ' vendedores.precoliberado as "vendedorPrecoliberado",                                 '+
     ' vendedores.descminmax as "vendedorDescminmax",                                       '+
     ' vendedores.descavista as "vendedorDescavista",                                       '+
@@ -533,7 +541,7 @@ function recuperarUltimoPedidoPorCodigoClienteHistorico(req, res, next) {
     ' left join forma_pagamento on forma_pagamento.codigo = pedidos.cdformapagamento          '+
 
            ' WHERE 1=1 '+fVendedor+fSupervisor+fCdcliente+fCdpedido+
-           ' and pedidos.nunotafiscal IS NOT NULL and pedidos.nunotafiscal > 0'+
+           //' and pedidos.nunotafiscal IS NOT NULL and pedidos.nunotafiscal > 0'+
            ' ORDER BY pedidos.dtpedido DESC limit 1') 
          .then(function (data) {
 
@@ -649,7 +657,8 @@ function recuperarPedidosPorFiltros(req, res, next) {
             ' vendedores.celular as "vendedorCelular",                                             '+
             ' vendedores.email as "vendedorEmail",                                                 '+
             ' vendedores.idtabelapreco as "vendedorIdtabelapreco",                                 '+
-            ' vendedores.nuultimopedido as "vendedorNuUltimopedido",                               '+
+            //' vendedores.nuultimopedido as "vendedorNuUltimopedido",                               '+
+            '(select max(p.cdpedido) from pedidos p where p.cdvendedor = vendedores.codigo and p.cdpedido < pedidos.cdpedido) as "vendedorNuUltimopedido", '+
             ' vendedores.precoliberado as "vendedorPrecoliberado",                                 '+
             ' vendedores.descminmax as "vendedorDescminmax",                                       '+
             ' vendedores.descavista as "vendedorDescavista",                                       '+
