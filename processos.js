@@ -4,7 +4,6 @@ var dateFormat = require('dateformat');
 const cron = require("node-cron");
 const jsftp = require("jsftp");
 var fs = require("fs");
-//const client = require('twilio')();
 
 var ftp_pedido = new jsftp({
   host: "54.94.243.33",
@@ -47,22 +46,10 @@ var ftp_move_file = new jsftp({
     user: "liane", // defaults to "anonymous"
     pass: "Integra@01" // defaults to "@anonymous"
   });
-// Download the Node helper library from twilio.com/docs/node/install
-// These are your accountSid and authToken from https://www.twilio.com/console
-//const accountSid = "ACf6fcbadfd25f42a64b4c66e89bf0b217";
-//const authToken = "c667ae203b251269749b7247928a8e9e";
 
-//const client = require('twilio')(accountSid, authToken);
+var TIPOOCORRENCIA = "API-PROCESSOS";
 
-//cron.schedule("*/20 * * * * *", function() { 
-    /*client.messages.create({
-        from: 'whatsapp:+14155238886',
-        body: 'Teste claudio!',
-        to: 'whatsapp:+64210532577'
-    }).then(message => console.log(message.sid));  */ 
-//});
-
-cron.schedule("*/20 * * * * *", function() { 
+cron.schedule("*/60 * * * * *", function() { 
     console.log("running a task every minute");
 
     db.task('insert-clientes', async t => {
@@ -426,9 +413,9 @@ function setaPedidosEnviados(pedidos){
 		var pedido = pedidos[i];
 		
 		query_update += "update pedidos set enviadoftp = true where cdpedido = "+pedido.cdpedido+
-            " and cdvendedor = "+pedido.cdvendedor+
-            " and (cdcliente = "+pedido.cdcliente+
-            " or cdclienteapk = "+pedido.cdclienteapk+"); ";
+            " and cdvendedor = "+pedido.cdvendedor;
+            /*" and (cdcliente = "+pedido.cdcliente+
+            " or cdclienteapk = "+pedido.cdclienteapk+"); ";*/
 	}
 
     //console.log("a processar, setando", query_update);
@@ -443,7 +430,9 @@ function setaPedidosEnviados(pedidos){
         console.log("Pedidos atualizados como já enviados para o FTP");
     })
     .catch(error => {
-        console.log("problema na atualizacao dos pedidos para enviadoftp true: \n", error);
+        var msg = "problema na atualizacao dos pedidos para enviadoftp true: \n";
+        console.log(msg, error);
+        utils.registrarOcorrencias(msg + error, TIPOOCORRENCIA, "ENVIAR PEDIDOS FTP", "", 0, "ERROR", false, "", db, "");
     });
 }
 
@@ -476,7 +465,9 @@ function setaClientesEnviados(clientes){
             console.log("Clientes atualizados como já enviados para o FTP");
         })
         .catch(error => {
-            console.log("problema na atualizacao dos clientes para enviadoftp true: \n", error);
+            var msg = "problema na atualizacao dos clientes para enviadoftp true: \n";
+            console.log(msg, error);
+            utils.registrarOcorrencias(msg + error, TIPOOCORRENCIA, "ENVIAR CLIENTES FTP", "", 0, "ERROR", false, "", db, "");
         });
     }
 }

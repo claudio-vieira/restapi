@@ -977,7 +977,7 @@ function inserirPedidos(req, res, next) {
                             + (pedido.gorduragerada == undefined || pedido.gorduragerada.toString().localeCompare('') == 0 ? '' : "gorduragerada = "+pedido.gorduragerada+",")
                             + (pedido.motivousogordura == undefined || pedido.motivousogordura.toString().localeCompare('') == 0 ? '' : "motivousogordura = '"+pedido.motivousogordura+"',")
                             + (pedido.cdmotivogordura == undefined || pedido.cdmotivogordura.toString().localeCompare('') == 0 ? '' : "cdmotivogordura = "+pedido.cdmotivogordura+",")
-                            + "enviadoftp = false," //Sempre false pois há um serviço que envia os pedidos não enviados para o FTP a partir desta flag
+                            //+ "enviadoftp = false," //Sempre false pois há um serviço que envia os pedidos não enviados para o FTP a partir desta flag
                             + (pedido.pendente == undefined || pedido.pendente.toString().localeCompare('') == 0 ? 0 : "pendente = "+pedido.pendente+",")
                             + (pedido.gorduraliberarsupervisor == undefined || pedido.gorduraliberarsupervisor.toString().localeCompare('') == 0 ? '' : "gorduraliberarsupervisor = "+pedido.gorduraliberarsupervisor+",")
                             + (pedido.cdsupervisor == undefined || pedido.cdsupervisor.toString().localeCompare('') == 0 ? '' : "cdsupervisor = "+pedido.cdsupervisor+",")
