@@ -413,7 +413,7 @@ function setaPedidosEnviados(pedidos){
 		var pedido = pedidos[i];
 		
 		query_update += "update pedidos set enviadoftp = true where cdpedido = "+pedido.cdpedido+
-            " and cdvendedor = "+pedido.cdvendedor;
+            " and cdvendedor = "+pedido.cdvendedor+";";
             /*" and (cdcliente = "+pedido.cdcliente+
             " or cdclienteapk = "+pedido.cdclienteapk+"); ";*/
 	}
