@@ -116,9 +116,12 @@ function recuperarUltimoPedidoPorCodigoCliente(req, res, next) {
     ' pedidos.cdmotivogordura,                                                              '+
     ' cast(round(cast( case when pedidos.gorduraliberarsupervisor is not null then pedidos.gorduraliberarsupervisor else 0 end as numeric),2) as double precision) as "valalorPendenteGordura",          '+
     ' pedidos.pendente,                                                 '+
-   '  cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st", 										                        '+
-    ' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",          			'+
-    ' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",            				'+
+    //' cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st", 										                        '+
+    //' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",          			'+
+    //' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",            				'+
+    ' (select sum(i.qtdeproduto * i.st) as st from itens_pedido i where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "st", '+
+    ' (select sum(i.qtdeproduto * p.pesoliquido) as pesoliquidototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesoliquidototal", '+
+    ' (select sum(i.qtdeproduto * p.pesobruto) as pesobrutototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesobrutototal", '+
     ' cast(round(cast( case when pedidos.valorreferenciatotal is not null then pedidos.valorreferenciatotal else 0 end as numeric),2) as double precision) as "valorreferenciatotal",      	'+
     ' cast( case when pedidos.totalvolume is not null then pedidos.totalvolume else 0 end as numeric) as "totalvolume",               							    '+
     ' cast( case when pedidos.totalprodutos is not null then pedidos.totalprodutos else 0 end as numeric) as "totalprodutos",            							'+
@@ -262,9 +265,12 @@ function recuperarPedidosPendentesSupervisor(req, res, next) {
     ' pedidos.cdmotivogordura,                                                              '+
     ' cast(round(cast( case when pedidos.gorduraliberarsupervisor is not null then pedidos.gorduraliberarsupervisor else 0 end as numeric),2) as double precision) as "valalorPendenteGordura",          '+
     ' pedidos.pendente,                                                 '+
-   '  cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st", 										                        '+
-    ' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",          			'+
-    ' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",            				'+
+    //' cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st", 										                        '+
+    //' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",          			'+
+    //' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",            				'+
+    ' (select sum(i.qtdeproduto * i.st) as st from itens_pedido i where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "st", '+
+    ' (select sum(i.qtdeproduto * p.pesoliquido) as pesoliquidototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesoliquidototal", '+
+    ' (select sum(i.qtdeproduto * p.pesobruto) as pesobrutototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesobrutototal", '+
     ' cast(round(cast( case when pedidos.valorreferenciatotal is not null then pedidos.valorreferenciatotal else 0 end as numeric),2) as double precision) as "valorreferenciatotal",      	'+
     ' cast( case when pedidos.totalvolume is not null then pedidos.totalvolume else 0 end as numeric) as "totalvolume",               							    '+
     ' cast( case when pedidos.totalprodutos is not null then pedidos.totalprodutos else 0 end as numeric) as "totalprodutos",            							'+
@@ -491,9 +497,12 @@ function recuperarUltimoPedidoPorCodigoClienteHistorico(req, res, next) {
     ' pedidos.cdmotivogordura,                                                              '+
     ' cast(round(cast( case when pedidos.gorduraliberarsupervisor is not null then pedidos.gorduraliberarsupervisor else 0 end as numeric),2) as double precision) as "valalorPendenteGordura",          '+
     ' pedidos.pendente,                                                 '+
-   '  cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st", 										                        '+
-    ' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",          			'+
-    ' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",            				'+
+    //' cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st", 										                        '+
+    //' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",          			'+
+    //' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",            				'+
+    ' (select sum(i.qtdeproduto * i.st) as st from itens_pedido i where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "st", '+
+    ' (select sum(i.qtdeproduto * p.pesoliquido) as pesoliquidototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesoliquidototal", '+
+    ' (select sum(i.qtdeproduto * p.pesobruto) as pesobrutototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesobrutototal", '+
     ' cast(round(cast( case when pedidos.valorreferenciatotal is not null then pedidos.valorreferenciatotal else 0 end as numeric),2) as double precision) as "valorreferenciatotal",      	'+
     ' cast( case when pedidos.totalvolume is not null then pedidos.totalvolume else 0 end as numeric) as "totalvolume",               							    '+
     ' cast( case when pedidos.totalprodutos is not null then pedidos.totalprodutos else 0 end as numeric) as "totalprodutos",            							'+
@@ -633,13 +642,17 @@ function recuperarPedidosPorFiltros(req, res, next) {
             ' pedidos.valornota,                                                                    '+
             ' pedidos.situacao,                                                                     '+
             ' cast(round(cast( case when pedidos.gordurausada is not null then pedidos.gordurausada else 0 end as numeric),2) as double precision) as "gordurausada",     '+                                                         
-            ' cast(round(cast( case when pedidos.gorduragerada is not null then pedidos.gorduragerada else 0 end as numeric),2) as double precision) as "gorduragerada",  '+                                                             ' pedidos.motivousogordura,                                                             '+
+            ' cast(round(cast( case when pedidos.gorduragerada is not null then pedidos.gorduragerada else 0 end as numeric),2) as double precision) as "gorduragerada",  '+                                                             
+            ' pedidos.motivousogordura,                                                             '+
             ' pedidos.cdmotivogordura,                                                              '+
             ' cast(round(cast( case when pedidos.gorduraliberarsupervisor is not null then pedidos.gorduraliberarsupervisor else 0 end as numeric),2) as double precision) as "valalorPendenteGordura",          '+
             ' pedidos.pendente,                                                 '+
-           '  cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st",                                                                 '+
-            ' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",                   '+
-            ' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",                         '+
+            //' cast(round(cast( case when pedidos.st is not null then pedidos.st else 0 end as numeric),2) as double precision) AS "st",                                                                 '+
+            //' cast(round(cast( case when pedidos.pesoliquidototal is not null then pedidos.pesoliquidototal else 0 end as numeric),2) as double precision) AS "pesoliquidototal",                   '+
+            //' cast(round(cast( case when pedidos.pesobrutototal is not null then pedidos.pesobrutototal else 0 end as numeric),2) as double precision) as "pesobrutototal",                         '+
+            ' (select sum(i.qtdeproduto * i.st) as st from itens_pedido i where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "st", '+
+            ' (select sum(i.qtdeproduto * p.pesoliquido) as pesoliquidototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesoliquidototal", '+
+            ' (select sum(i.qtdeproduto * p.pesobruto) as pesobrutototal from itens_pedido i inner join produtos p on p.codigo = i.cdproduto where i.cdvendedor = vendedores.codigo and i.cdpedido = pedidos.cdpedido) as "pesobrutototal", '+
             ' cast(round(cast( case when pedidos.valorreferenciatotal is not null then pedidos.valorreferenciatotal else 0 end as numeric),2) as double precision) as "valorreferenciatotal",       '+
             ' cast( case when pedidos.totalvolume is not null then pedidos.totalvolume else 0 end as numeric) as "totalvolume",                                             '+
             ' cast( case when pedidos.totalprodutos is not null then pedidos.totalprodutos else 0 end as numeric) as "totalprodutos",                                       '+
