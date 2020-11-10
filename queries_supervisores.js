@@ -61,18 +61,27 @@ function recuperarSupervisorPorCodigo(req, res, next) {
 
 function recuperarSupervisorPorCodigoGorduraAnoMes(req, res, next) {
     var codigo = parseInt(req.body.codigo);
-    var anomes = parseInt(req.body.anomes);
+    var anomes = req.body.anomes;
 
     if(codigo == undefined || codigo == '' || anomes == undefined || anomes == ''){
         return res.status(401).json({error: 'Obrigatorio o parametro (codigo) e (anomes) no corpo da requisicao'});
     }
 
     //Query retorna os campos do supervisor mais a quantidade de gordura usada por ele no m�s atual
-    sql = "SELECT s.*, "+
+    /*sql = "SELECT s.*, "+
         "coalesce((select sum(gorduraliberada) from pedidos_aprovados where cdsupervisor = "+codigo+" and dataliberada like '"+anomes+"'), 0) as saldoGorduraUsado, "+
         "coalesce((select valorgordura from saldo_gordura_sup where cdsupervisor = "+codigo+" and validadegordura like '"+anomes+"'), 0) as saldoGorduraInicio "+
         "FROM supervisores s  "+
         "LEFT JOIN pedidos_aprovados p on cdsupervisor = s.codigo "+
+        "WHERE s.codigo = "+codigo+" group by s.codigo";*/
+
+    var sql = "SELECT s.*, "+ 
+        "coalesce((select sum(p.gorduraliberarsupervisor) from pedidos p "+
+        "inner join supervisionados su on su.cdvendedor = p.cdvendedor "+
+        "where su.cdsupervisor = s.codigo and p.gorduraliberarsupervisor > 0 and p.pendente = 1 and dtpedido > '"+anomes.substring(0,4)+"-"+anomes.substring(4,6)+"-01 00:00:00' ), 0) as saldoGorduraUsado, "+ 
+        "coalesce((select valorgordura from saldo_gordura_sup where cdsupervisor = "+codigo+" and validadegordura like '"+anomes+"'), 0) as saldoGorduraInicio "+
+        "FROM supervisores s "+
+        "LEFT JOIN pedidos_aprovados p on cdsupervisor = s.codigo "+ 
         "WHERE s.codigo = "+codigo+" group by s.codigo";
 
     //console.log(sql);
