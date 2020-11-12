@@ -7,8 +7,8 @@ var utils = require('./utils');
 
 var TIPOOCORRENCIA = "API-EMAIL-OCORRENCIAS";
 
-cron.schedule("*/60 * * * * *", function() { 
-    console.log("running a task EMAIL OCORRENCIAS every minute");
+cron.schedule("*/2 * * * *", function() { 
+    //console.log("running a task EMAIL OCORRENCIAS every 2 minutes");
 
     var sql = "select * from ocorrencias_ws where linha > 0 and statusemail like 'A ENVIAR' order by nomearquivo";
 

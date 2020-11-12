@@ -9,8 +9,8 @@ var utils = require('./utils');
 
 var TIPOOCORRENCIA = "API-EMAIL";
 
-cron.schedule("*/60 * * * * *", function() { 
-    console.log("running a task EMAIL every minute");
+cron.schedule("*/2 * * * *", function() { 
+    //console.log("running a task EMAIL every 2 minutes");
 
     var sql = "SELECT "+
         "p.cdvendedor, "+ 

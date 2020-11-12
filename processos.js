@@ -49,8 +49,8 @@ var ftp_move_file = new jsftp({
 
 var TIPOOCORRENCIA = "API-PROCESSOS";
 
-cron.schedule("*/60 * * * * *", function() { 
-    console.log("running a task every minute");
+cron.schedule("*/1 * * * *", function() { 
+    //console.log("running a task every minute");
 
     db.task('insert-clientes', async t => {
         const clientes = await t.any('SELECT * FROM clientes c WHERE c.enviadoftp is false');        
