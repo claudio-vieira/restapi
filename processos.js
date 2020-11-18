@@ -240,7 +240,7 @@ function processarClientesInit(clientes){
         
         var cliente = clientes[j];
 
-        strCliente += cliente.cdvendedor+"|"+
+        strCliente += ("000" + cliente.cdvendedor).slice(-3)+"|"+
         (cliente.codigo != null ? cliente.codigo : "")+"|"+ //este é o código que irá vir pelo sitema da liane, na criação do cliente este código é nulo
         (cliente.nome != null ? cliente.nome : "")+"|"+
         (cliente.fantasia != null ? cliente.fantasia : "")+"|"+
