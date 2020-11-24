@@ -366,6 +366,30 @@ function recuperarPedidosPorVendedor(req, res, next) {
     });
 }
 
+function recuperarPedidosAprovadosPorVendedor(req, res, next) {
+    var cdvendedor = parseInt(req.body.cdvendedor);
+
+    db.any('SELECT * FROM pedidos_aprovados WHERE cdvendedor = $1', [cdvendedor])
+        .then(function (data) {
+            var items = Object.keys(data);
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data_pedidos_aprovados: data,
+                    message: 'Retrieved pedidos aprovados'
+                });
+        })
+    .catch(function (err) {
+        //return next(err);
+        res.status(400)
+                .json({
+                    status: 'Warning',
+                    data_pedidos_aprovados: 'NÃ£o existe o pedido aprovado ou houve algum problema',
+                    message: 'Verifique a sintaxe do Json, persistindo o erro favor contactar o administrador.'
+                });
+    });
+}
+
 function recuperarPedidosPorCodigoEVendedor(req, res, next) {
     var cdvendedor = parseInt(req.body.cdvendedor);
     var cdpedido = parseInt(req.body.cdpedido);
@@ -885,7 +909,7 @@ function inserirPedidos(req, res, next) {
                 +"cnpjcliente,cdclienteapk,tipotabela,cdcobranca,dtentrega,hrpedido,totaltabela,totaldesconto,"
                 +"bensuframa,ordem,observacao,gordurausada,gorduragerada,motivousogordura,cdmotivogordura,enviadoftp,pendente,gorduraliberarsupervisor,cdsupervisor, "
                 +"st,pesoliquidototal,pesobrutototal,valorreferenciatotal,totalvolume,totalprodutos, enviadoemail, enviadoemailsupervisor, "
-                +"motivousogordurasupervisor, enviadoemailrepsup,criadoapp,nuproxpedido) VALUES ";
+                +"motivousogordurasupervisor, enviadoemailrepsup,criadoapp,nuproxpedido,verba) VALUES ";
 
 
             query_insert += "("+ (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? null : pedido.cdvendedor)
@@ -948,6 +972,7 @@ function inserirPedidos(req, res, next) {
                             +",0" //enviadoemailrepsup
                             +","+ (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? 1 : pedido.criadoapp)
                             +","+ (pedido.nuproxpedido == undefined || pedido.nuproxpedido == null || pedido.nuproxpedido.toString().localeCompare('') == 0 ? null : pedido.nuproxpedido)
+                            +","+ (pedido.verba == undefined || pedido.verba == null || pedido.verba.toString().localeCompare('') == 0 ? null : pedido.verba)
                             +") ON CONFLICT ON CONSTRAINT pedidos_pkey DO UPDATE SET "
                             + (pedido.cdvendedor == undefined || pedido.cdvendedor.toString().localeCompare('') == 0 ? '' : "cdvendedor = "+pedido.cdvendedor+",")
                             + (pedido.idfilial == undefined || pedido.idfilial.toString().localeCompare('') == 0 ? '' : "idfilial = "+pedido.idfilial+",")
@@ -1005,7 +1030,8 @@ function inserirPedidos(req, res, next) {
                             + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',")
                             + (pedido.enviadoemailrepsup == undefined || pedido.enviadoemailrepsup == null || pedido.enviadoemailrepsup.toString().localeCompare('') == 0 ? "enviadoemailrepsup = 1," : "enviadoemailrepsup = "+pedido.enviadoemailrepsup+",")
                             + (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? "criadoapp = 1," : "criadoapp = "+pedido.criadoapp+",")
-                            + (pedido.nuproxpedido == undefined || pedido.nuproxpedido == null || pedido.nuproxpedido.toString().localeCompare('') == 0 ? "" : "nuproxpedido = "+pedido.nuproxpedido+",");
+                            + (pedido.nuproxpedido == undefined || pedido.nuproxpedido == null || pedido.nuproxpedido.toString().localeCompare('') == 0 ? "" : "nuproxpedido = "+pedido.nuproxpedido+",")
+                            + (pedido.verba == undefined || pedido.verba == null || pedido.verba.toString().localeCompare('') == 0 ? "" : "verba = "+pedido.verba+",");
 
                             query_insert = query_insert.substring(0, query_insert.length-1)+";";
         }
@@ -1147,6 +1173,7 @@ function reenviarEmail(req, res, next){
 module.exports = {
     recuperarPedidos: recuperarPedidos,
     recuperarPedidosPorVendedor: recuperarPedidosPorVendedor,
+    recuperarPedidosAprovadosPorVendedor: recuperarPedidosAprovadosPorVendedor,
     recuperarPedidosPorCodigoEVendedor: recuperarPedidosPorCodigoEVendedor,
     recuperarPedidosPendentesSupervisor: recuperarPedidosPendentesSupervisor,
     recuperarUltimoPedidoPorCodigoCliente: recuperarUltimoPedidoPorCodigoCliente,

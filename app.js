@@ -13,6 +13,7 @@ var db_tipo_tabela = require('./queries_tipo_tabela');
 var db_supervisores = require('./queries_supervisores');
 var db_supervisionados = require('./queries_supervisionados');
 var db_saldo_gordura = require('./queries_saldo_gordura');
+var db_saldo_sup_gordura = require('./queries_saldo_sup_gordura');
 var db_lista_preco = require('./queries_lista_preco');
 var db_forma_pagamento = require('./queries_forma_pagamento');
 var db_vendas = require('./queries_vendas');
@@ -145,6 +146,11 @@ app.post('/api/atualizarSaldoGordura', db_saldo_gordura.atualizarSaldoGordura);
 
 
 
+//Chamadas do Saldo Gordura Sup
+app.post('/api/recuperarSaldoGorduraSupPorVendedor', db_saldo_sup_gordura.recuperarSaldoGorduraSupPorVendedor);
+
+
+
 //Chamadas da Lista Preco
 app.post('/api/recuperarListaPreco', db_lista_preco.recuperarListaPreco);
 app.post('/api/recuperarListaPrecoPorCodigo', db_lista_preco.recuperarListaPrecoPorCodigo);
@@ -252,6 +258,7 @@ app.post('/api/deletarItensPedido', db_itens_pedido.deletarItensPedido);
 //Chamadas dos pedidos
 app.post('/api/recuperarPedidos', db_pedidos.recuperarPedidos);
 app.post('/api/recuperarPedidosPorVendedor', db_pedidos.recuperarPedidosPorVendedor);
+app.post('/api/recuperarPedidosAprovadosPorVendedor', db_pedidos.recuperarPedidosAprovadosPorVendedor);
 app.post('/api/recuperarPedidosPorCodigoEVendedor', db_pedidos.recuperarPedidosPorCodigoEVendedor);
 app.post('/api/recuperarPedidosPendentesSupervisor', db_pedidos.recuperarPedidosPendentesSupervisor);
 app.post('/api/recuperarUltimoPedidoPorCodigoCliente', db_pedidos.recuperarUltimoPedidoPorCodigoCliente);
