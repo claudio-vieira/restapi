@@ -94,14 +94,11 @@ function recuperarItensPorPedido(req, res, next) {
     const param = req.body;
     var codigo = '';
     var cdvendedor = '';
-    var cdcliente = '';
 
     if(param.cdpedido !== undefined && param.cdpedido != '' &&
-    	param.cdvendedor !== undefined && param.cdvendedor != '' &&
-    	param.cdcliente !== undefined && param.cdcliente != ''){
+    	param.cdvendedor !== undefined && param.cdvendedor != ''){
         codigo = parseInt(param.cdpedido);
     	cdvendedor = parseInt(param.cdvendedor);
-    	cdcliente = parseInt(param.cdcliente);
     }else{
        return res.status(401).json({error: 'Parametro (cdpedido) e (cdvendedor) defenido incorretamente'});
     }
@@ -109,7 +106,7 @@ function recuperarItensPorPedido(req, res, next) {
     
 
 
-    db.any(' SELECT '+
+    db.any(' SELECT distinct '+
     ' itens_pedido.cdvendedor,            '+
     ' itens_pedido.cdpreposto,            '+
     ' itens_pedido.cdlocalfaturamento,    '+
@@ -161,8 +158,7 @@ function recuperarItensPorPedido(req, res, next) {
     ' left join clientes on clientes.codigo = pedidos.cdcliente and clientes.cdvendedor = itens_pedido.cdvendedor                                    '+
                ' WHERE 1=1 '+
                ' and itens_pedido.cdpedido = '+codigo+
-               ' and itens_pedido.cdvendedor = '+cdvendedor+
-               ' and clientes.codigo = '+cdcliente)
+               ' and itens_pedido.cdvendedor = '+cdvendedor)
         .then(function (data) {
             var items = Object.keys(data);
            
