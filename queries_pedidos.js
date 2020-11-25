@@ -970,7 +970,7 @@ function inserirPedidos(req, res, next) {
                             +","+ (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? 1 : pedido.enviadoemailsupervisor)
                     	    +","+ (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? null : "'"+pedido.motivousogordurasupervisor+"'")
                             +",0" //enviadoemailrepsup
-                            +","+ (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? 1 : pedido.criadoapp)
+                            +",1" //+ (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? 1 : pedido.criadoapp)
                             +","+ (pedido.nuproxpedido == undefined || pedido.nuproxpedido == null || pedido.nuproxpedido.toString().localeCompare('') == 0 ? null : pedido.nuproxpedido)
                             +","+ (pedido.verba == undefined || pedido.verba == null || pedido.verba.toString().localeCompare('') == 0 ? null : pedido.verba)
                             +") ON CONFLICT ON CONSTRAINT pedidos_pkey DO UPDATE SET "
@@ -1029,7 +1029,8 @@ function inserirPedidos(req, res, next) {
                             + (pedido.enviadoemailsupervisor == undefined || pedido.enviadoemailsupervisor == null || pedido.enviadoemailsupervisor.toString().localeCompare('') == 0 ? "enviadoemailsupervisor = 1," : "enviadoemailsupervisor = "+pedido.enviadoemailsupervisor+",")
                             + (pedido.motivousogordurasupervisor == undefined || pedido.motivousogordurasupervisor.toString().localeCompare('') == 0 ? '' : "motivousogordurasupervisor = '"+pedido.motivousogordurasupervisor+"',")
                             + (pedido.enviadoemailrepsup == undefined || pedido.enviadoemailrepsup == null || pedido.enviadoemailrepsup.toString().localeCompare('') == 0 ? "enviadoemailrepsup = 1," : "enviadoemailrepsup = "+pedido.enviadoemailrepsup+",")
-                            + (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? "criadoapp = 1," : "criadoapp = "+pedido.criadoapp+",")
+                            //+ (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? "criadoapp = 1," : "criadoapp = "+pedido.criadoapp+",")
+                            + (pedido.criadoapp == undefined || pedido.criadoapp == null || pedido.criadoapp.toString().localeCompare('') == 0 ? "criadoapp = 1," : "criadoapp = 1,")
                             + (pedido.nuproxpedido == undefined || pedido.nuproxpedido == null || pedido.nuproxpedido.toString().localeCompare('') == 0 ? "" : "nuproxpedido = "+pedido.nuproxpedido+",")
                             + (pedido.verba == undefined || pedido.verba == null || pedido.verba.toString().localeCompare('') == 0 ? "" : "verba = "+pedido.verba+",");
 
